@@ -391,7 +391,7 @@ export class NegotiationEngine {
         <div class="modal-card modal-3d doc-formal-modal">
           <div class="doc-modal-header">
             <div class="doc-official-seal">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="#FF5500"><path d="M12 2L1 21h22L12 2zm0 4.12l8.28 14.38H3.72L12 6.12zm-1 5.88v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="#A25F2A"><path d="M12 2L1 21h22L12 2zm0 4.12l8.28 14.38H3.72L12 6.12zm-1 5.88v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
             </div>
             <div>
               <h3>RELATE COLLECTIVE PURCHASE TENDER</h3>

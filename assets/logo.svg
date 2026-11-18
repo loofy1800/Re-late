@@ -1,26 +1,27 @@
 <svg width="44" height="44" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Dark Emblem Base -->
-  <rect width="48" height="48" rx="12" fill="#111111"/>
+  <!-- Deep Coconut Shell Base -->
+  <rect width="48" height="48" rx="12" fill="#2B1810"/>
   
   <!-- Sleek Aerodynamic Car Silhouette in Background -->
-  <path d="M7 30C8.5 24 13.5 20.5 19.5 19.5L28.5 19.5C34.5 20.5 39.5 24 41 30L42 33H6L7 30Z" fill="#242424"/>
-  <path d="M12 28C14 23 18 20 24 20C30 20 34 23 36 28" stroke="#FF5500" stroke-width="2" stroke-linecap="round"/>
-  <!-- Sleek Wheels -->
-  <circle cx="14" cy="33" r="3.5" fill="#FF5500"/>
-  <circle cx="14" cy="33" r="1.5" fill="#111111"/>
-  <circle cx="34" cy="33" r="3.5" fill="#FF5500"/>
-  <circle cx="34" cy="33" r="1.5" fill="#111111"/>
+  <path d="M7 30C8.5 24 13.5 20.5 19.5 19.5L28.5 19.5C34.5 20.5 39.5 24 41 30L42 33H6L7 30Z" fill="#3D2418"/>
+  <path d="M12 28C14 23 18 20 24 20C30 20 34 23 36 28" stroke="#C87A3E" stroke-width="2.2" stroke-linecap="round"/>
+  
+  <!-- Sleek Wheels with Toasted Coconut Tone -->
+  <circle cx="14" cy="33" r="3.5" fill="#A25F2A"/>
+  <circle cx="14" cy="33" r="1.5" fill="#FAF7F2"/>
+  <circle cx="34" cy="33" r="3.5" fill="#A25F2A"/>
+  <circle cx="34" cy="33" r="1.5" fill="#FAF7F2"/>
 
-  <!-- Foreground: Two People Shaking Hands (🤝 Prominently Positioned) -->
+  <!-- Foreground: Two People Shaking Hands (🤝 Prominently Positioned in Crisp Coconut White) -->
   <!-- Left Person Silhouette -->
-  <circle cx="19" cy="13" r="3" fill="#FFFFFF"/>
-  <path d="M14 24C14 20 17 18 20 18L21 21L18 24H14Z" fill="#FFFFFF"/>
+  <circle cx="19" cy="13" r="3.2" fill="#FAF7F2"/>
+  <path d="M14 24C14 19.8 17 18 20 18L21 21.2L18 24H14Z" fill="#FAF7F2"/>
   
   <!-- Right Person Silhouette -->
-  <circle cx="29" cy="13" r="3" fill="#FFFFFF"/>
-  <path d="M34 24C34 20 31 18 28 18L27 21L30 24H34Z" fill="#FFFFFF"/>
+  <circle cx="29" cy="13" r="3.2" fill="#FAF7F2"/>
+  <path d="M34 24C34 19.8 31 18 28 18L27 21.2L30 24H34Z" fill="#FAF7F2"/>
 
   <!-- Prominent Handshake Clasp (🤝) -->
-  <rect x="21" y="21" width="6" height="5" rx="2.5" fill="#FF5500" stroke="#FFFFFF" stroke-width="1.5"/>
-  <path d="M19 22L24 24L29 22" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+  <rect x="21" y="21" width="6.5" height="5.2" rx="2.6" fill="#C87A3E" stroke="#FAF7F2" stroke-width="1.5"/>
+  <path d="M19 22L24.2 24.2L29 22" stroke="#FAF7F2" stroke-width="1.5" stroke-linecap="round"/>
 </svg>

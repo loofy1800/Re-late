@@ -6,11 +6,12 @@
 
 ## 🎨 Branding & Visual Identity
 - **Logo / Symbol:** A sleek aerodynamic car silhouette in the background with two people shaking hands (🤝) prominently positioned in front of it.
-- **Color Palette:**
-  - **Background:** Clean White (`#FFFFFF`, `#F8F9FA`)
-  - **Primary Accent:** High-Contrast Orange (`#FF5500`, `#FF6B00`)
-  - **Text & Dark Accents:** Deep Charcoal & Jet Black (`#111111`, `#1A1A1A`)
-  - **Secondary Neutral:** Soft Gray borders (`#E5E7EB`) & Crisp Dark Borders (`1.5px solid #111111`)
+- **Color Palette (Coconut Luxury White & Brown):**
+  - **Background:** Clean Coconut Milk & Cream Whites (`#FFFFFF`, `#FDFBF8`, `#FAF6F0`)
+  - **Primary Accent:** Toasted Coconut Caramel & Amber Brown (`#9E5827`, `#86471C`, `#B86B35`)
+  - **Text & Dark Accents:** Deep Roasted Coconut Shell Brown (`#2B1810`, `#382117`, `#24140D`)
+  - **Secondary Neutral:** Warm Coconut Husk Neutral Borders (`#E8DFD5`, `#2B1810`)
+  - **Lush Accents:** Palm Green Verification Accents (`#2E7D32`)
 - **3D Tactile Motion Physics (Mandatory Specification):**
   - **Hover State:** `transform: translateY(-3px)` + soft drop shadow + highlight pop.
   - **Active / Press State:** `transform: translateY(1px)` + inset depth shadow.

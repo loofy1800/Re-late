@@ -30,9 +30,9 @@ export class DealerPortal {
           <div class="dealer-header-main">
             <div class="dealer-crest">
               <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
-                <rect width="40" height="40" rx="10" fill="#111111"/>
-                <path d="M12 28V12L20 8L28 12V28L20 32L12 28Z" stroke="#FF5500" stroke-width="2.5"/>
-                <circle cx="20" cy="20" r="4" fill="#FF5500"/>
+                <rect width="40" height="40" rx="10" fill="#2B1810"/>
+                <path d="M12 28V12L20 8L28 12V28L20 32L12 28Z" stroke="#A25F2A" stroke-width="2.5"/>
+                <circle cx="20" cy="20" r="4" fill="#A25F2A"/>
               </svg>
             </div>
             <div>
@@ -167,7 +167,7 @@ export class DealerPortal {
 
                 <div class="dealer-signature-row">
                   <div class="sign-avatar">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF5500" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A25F2A" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                   </div>
                   <div class="sign-details">
                     <span class="sign-name"><strong>${this.escapeHtml(currentDealer.manager)}</strong></span>

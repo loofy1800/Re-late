@@ -36,9 +36,9 @@ export class AuthManager {
           <div class="auth-header">
             <div class="auth-logo-badge">
               <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-                <rect width="40" height="40" rx="10" fill="#111111"/>
+                <rect width="40" height="40" rx="10" fill="#2B1810"/>
                 <!-- Sleek Car Silhouette -->
-                <path d="M8 24C9 20 12 17 17 16L24 16C28 17 31 20 33 24L34 26H6L8 24Z" fill="#FF5500"/>
+                <path d="M8 24C9 20 12 17 17 16L24 16C28 17 31 20 33 24L34 26H6L8 24Z" fill="#A25F2A"/>
                 <circle cx="12" cy="27" r="2.5" fill="#FFFFFF"/>
                 <circle cx="28" cy="27" r="2.5" fill="#FFFFFF"/>
                 <!-- Handshake 🤝 -->
