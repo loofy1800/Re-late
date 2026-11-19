@@ -7,7 +7,12 @@
 class SoundEngine {
   constructor() {
     this.audioCtx = null;
-    this.isMuted = localStorage.getItem("relate_audio_muted") === "true";
+    try {
+      this.isMuted = localStorage.getItem("relate_audio_muted") === "true";
+    } catch (e) {
+      console.warn("Could not load audio preference from localStorage.", e);
+      this.isMuted = false;
+    }
   }
 
   init() {
@@ -24,7 +29,11 @@ class SoundEngine {
 
   toggleMute() {
     this.isMuted = !this.isMuted;
-    localStorage.setItem("relate_audio_muted", this.isMuted ? "true" : "false");
+    try {
+      localStorage.setItem("relate_audio_muted", this.isMuted ? "true" : "false");
+    } catch (e) {
+      console.warn("Could not save audio preference to localStorage.", e);
+    }
     return this.isMuted;
   }
 

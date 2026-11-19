@@ -79,7 +79,7 @@ export class AuthManager {
                   <span class="input-prefix">🇺🇸 +1</span>
                   <input type="tel" id="auth-phone-input" class="form-input" placeholder="(404) 555-0192" value="(404) 555-0192" required>
                 </div>
-                <span class="form-hint">We'll text a secure 6-digit confirmation code. Standard rates apply.</span>
+                <span class="form-hint">Demo only: no SMS is sent. Use the displayed 6-digit code.</span>
               </div>
               <button type="button" id="btn-send-otp" class="btn btn-primary btn-3d w-100">
                 Send Verification Code
@@ -129,10 +129,10 @@ export class AuthManager {
               <h4>Alex Morgan</h4>
               <p class="text-muted">alex.morgan@gmail.com</p>
               <div class="google-privacy-notice">
-                Relate will receive your name, email address, language preference, and profile picture to complete verified buyer matchmaking.
+                Demo preview only. No Google account is connected and no profile data is sent.
               </div>
               <button type="button" id="btn-google-oauth-login" class="btn btn-dark btn-3d w-100">
-                Continue with Google
+                Continue with Sample Profile
               </button>
             </div>
           </div>
@@ -146,14 +146,9 @@ export class AuthManager {
               </div>
               <div class="form-group">
                 <label for="auth-pass-input" class="form-label">Password</label>
-                <input type="password" id="auth-pass-input" class="form-input" placeholder="••••••••••••" value="Secur3Relate!2026" required>
+                <input type="password" id="auth-pass-input" class="form-input" placeholder="Enter your password" required>
               </div>
-              <div class="form-row-remember">
-                <label class="checkbox-label">
-                  <input type="checkbox" checked> Remember this device
-                </label>
-                <a href="#" class="btn-link" onclick="event.preventDefault(); alert('In demo mode: you can log in directly.');">Forgot?</a>
-              </div>
+              <p class="form-hint">Demo only. Credentials are not verified, stored, or sent anywhere.</p>
               <button type="submit" class="btn btn-primary btn-3d w-100">
                 Sign In with Email
               </button>
@@ -163,21 +158,21 @@ export class AuthManager {
           <!-- STEP 2: PROFILE ONBOARDING / CUSTOMIZATION FIELDS -->
           <div id="auth-panel-profile" class="auth-panel d-none">
             <div class="profile-onboarding-header">
-              <span class="badge badge-orange">Buyer Profile</span>
+              <span class="badge badge-orange">Demo Buyer Profile</span>
               <h3>Configure Your Purchasing Power</h3>
-              <p class="text-muted">Local dealerships use this verified data to prepare high-volume fleet discounts.</p>
+              <p class="text-muted">Saved locally for this demo only. No identity or financial checks are performed.</p>
             </div>
 
             <form id="profile-onboarding-form">
               <div class="form-group">
-                <label class="form-label" for="prof-name">Full Legal Name</label>
+                <label class="form-label" for="prof-name">Profile Name</label>
                 <input type="text" id="prof-name" class="form-input" required>
               </div>
 
               <div class="grid-2-col">
                 <div class="form-group">
                   <label class="form-label" for="prof-zip">Preferred Zip Code</label>
-                  <input type="text" id="prof-zip" class="form-input" maxlength="5" placeholder="30309" required>
+                  <input type="text" id="prof-zip" class="form-input" maxlength="5" pattern="[0-9]{5}" placeholder="30309" required>
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="prof-city">Metro Region</label>
@@ -263,8 +258,12 @@ export class AuthManager {
       btn.addEventListener("click", () => {
         sound.playClick();
         const tab = btn.getAttribute("data-auth-tab");
-        tabBtns.forEach(b => b.classList.remove("active"));
+        tabBtns.forEach(b => {
+          b.classList.remove("active");
+          b.setAttribute("aria-selected", "false");
+        });
         btn.classList.add("active");
+        btn.setAttribute("aria-selected", "true");
 
         this.modalEl.querySelectorAll(".auth-panel").forEach(p => p.classList.remove("active"));
         const panel = document.getElementById(`auth-panel-${tab}`);
@@ -276,7 +275,8 @@ export class AuthManager {
     document.getElementById("btn-send-otp").addEventListener("click", () => {
       sound.playClick();
       const phone = document.getElementById("auth-phone-input").value;
-      if (!phone) {
+      const digits = phone.replace(/\D/g, "");
+      if (digits.length !== 10 && !(digits.length === 11 && digits.startsWith("1"))) {
         alert("Please enter a valid mobile number.");
         return;
       }
@@ -304,8 +304,8 @@ export class AuthManager {
     // Verify OTP
     document.getElementById("btn-verify-otp").addEventListener("click", () => {
       const code = document.getElementById("otp-code-input").value;
-      if (code.length < 6) {
-        alert("Please enter the 6-digit verification code.");
+      if (code !== this.simulatedOtpCode) {
+        alert("The verification code is incorrect. Please enter the 6-digit demo code.");
         return;
       }
       sound.playJoinSuccess();
@@ -316,9 +316,9 @@ export class AuthManager {
     document.getElementById("btn-google-oauth-login").addEventListener("click", () => {
       sound.playJoinSuccess();
       const btn = document.getElementById("btn-google-oauth-login");
-      btn.innerHTML = `<span class="spinner-sm"></span> Authenticating via Google...`;
+      btn.innerHTML = `<span class="spinner-sm"></span> Opening demo profile...`;
       setTimeout(() => {
-        btn.innerHTML = `Continue with Google`;
+        btn.innerHTML = `Continue with Sample Profile`;
         this.showProfileStep();
       }, 700);
     });
@@ -353,11 +353,16 @@ export class AuthManager {
 
       const selectedBrands = Array.from(document.querySelectorAll("#brand-selector .brand-pill.active"))
         .map(p => p.getAttribute("data-brand"));
+      const name = document.getElementById("prof-name").value.trim();
+      if (!name || selectedBrands.length === 0) {
+        alert("Enter your name and select at least one preferred brand.");
+        return;
+      }
 
       const updatedUser = {
-        name: document.getElementById("prof-name").value,
+        name,
         zipCode: document.getElementById("prof-zip").value,
-        city: document.getElementById("prof-city").value,
+        city: document.getElementById("prof-city").value.trim(),
         budget: Number(document.getElementById("prof-budget").value),
         preferredBrands: selectedBrands,
         readinessStatus: document.getElementById("prof-readiness").value,
@@ -420,14 +425,17 @@ export class AuthManager {
   }
 
   openModal(mode = "login") {
-    const user = store.getState().currentUser;
     if (mode === "profile") {
       this.showProfileStep();
     } else {
       // Show tabs
       this.modalEl.querySelector(".auth-tabs").classList.remove("d-none");
       this.modalEl.querySelectorAll(".auth-panel").forEach(p => p.classList.remove("active", "d-none"));
-      document.getElementById("auth-panel-phone").classList.add("active");
+      this.modalEl.querySelectorAll("[data-auth-tab]").forEach((tab, index) => {
+        tab.classList.toggle("active", index === 0);
+        tab.setAttribute("aria-selected", index === 0 ? "true" : "false");
+      });
+      this.modalEl.querySelector("#auth-panel-phone").classList.add("active");
       document.getElementById("phone-step-1").classList.remove("d-none");
       document.getElementById("phone-step-2").classList.add("d-none");
       document.getElementById("auth-panel-profile").classList.add("d-none");

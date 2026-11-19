@@ -13,6 +13,15 @@ class Store {
   }
 
   loadState() {
+    const defaultFilters = {
+      brand: "all",
+      bodyType: "all",
+      location: "all",
+      radius: 50,
+      maxPrice: 90000,
+      searchQuery: ""
+    };
+
     try {
       const saved = localStorage.getItem(this.storageKey);
       if (saved) {
@@ -28,14 +37,7 @@ class Store {
           activeWorkbenchTab: parsed.activeWorkbenchTab || "offer", // 'offer', 'chat', 'proposal', 'counters'
           dealerMode: parsed.dealerMode || false,
           currentDealer: parsed.currentDealer || INITIAL_DATA.dealershipsList[0],
-          filters: {
-            brand: "all",
-            bodyType: "all",
-            location: "all",
-            radius: 50,
-            maxPrice: 90000,
-            searchQuery: ""
-          }
+          filters: { ...defaultFilters, ...parsed.filters }
         };
       }
     } catch (e) {
@@ -52,14 +54,7 @@ class Store {
       activeWorkbenchTab: "offer",
       dealerMode: false,
       currentDealer: INITIAL_DATA.dealershipsList[0],
-      filters: {
-        brand: "all",
-        bodyType: "all",
-        location: "all",
-        radius: 50,
-        maxPrice: 90000,
-        searchQuery: ""
-      }
+      filters: defaultFilters
     };
   }
 
@@ -151,6 +146,8 @@ class Store {
       group.members = group.members.filter(m => m.id !== user.id);
       group.buyerCount = Math.max(0, group.buyerCount - 1);
     } else {
+      if (group.buyerCount >= group.maxCapacity) return null;
+
       // Join group
       user.joinedGroupIds.push(groupId);
       if (!group.members.some(m => m.id === user.id)) {
@@ -244,6 +241,8 @@ class Store {
 
     const poll = group.polls.find(p => p.id === pollId);
     if (!poll) return;
+    const newOpt = poll.options.find(o => o.id === optionId);
+    if (!newOpt) return;
 
     // If user already voted for this option, do nothing
     if (poll.userVoted === optionId) return;
@@ -257,11 +256,8 @@ class Store {
     }
 
     // Increment new option
-    const newOpt = poll.options.find(o => o.id === optionId);
-    if (newOpt) {
-      newOpt.votes = (newOpt.votes || 0) + 1;
-      poll.userVoted = optionId;
-    }
+    newOpt.votes = (newOpt.votes || 0) + 1;
+    poll.userVoted = optionId;
 
     this.notify("POLL_VOTED", { groupId, pollId, optionId, poll });
   }
@@ -328,7 +324,7 @@ class Store {
       senderName: "Relate Pitch Engine",
       role: "Automated",
       avatar: "assets/relate-icon.svg",
-      text: `🚀 Formal Joint Intent Proposal dispatched to ${group.targetDealerships.length} certified dealerships! Target discount: $${activeTier.discount.toLocaleString()} off each unit. Response window open.`,
+      text: `🚀 Proposal demo completed locally for ${group.targetDealerships.length} sample dealerships. No dealerships were contacted.`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       isSystem: true
     });
@@ -341,46 +337,62 @@ class Store {
     if (!group || !group.proposal?.counterOffers) return;
 
     const counter = group.proposal.counterOffers.find(c => c.id === counterId);
-    if (!counter) return;
+    if (!counter || !["accept", "reject"].includes(voteType) || counter.status === "accepted") return false;
 
+    const userId = this.state.currentUser.id;
+    const votes = counter.votesByUser || [];
+    const priorVote = votes.find(vote => vote.userId === userId);
+    if (priorVote?.voteType === voteType) return false;
+
+    if (priorVote?.voteType === "accept") {
+      counter.votesAccept = Math.max(0, (counter.votesAccept || 0) - 1);
+    } else if (priorVote?.voteType === "reject") {
+      counter.votesReject = Math.max(0, (counter.votesReject || 0) - 1);
+    }
     if (voteType === "accept") {
       counter.votesAccept = (counter.votesAccept || 0) + 1;
     } else {
       counter.votesReject = (counter.votesReject || 0) + 1;
     }
+    counter.votesByUser = [
+      ...votes.filter(vote => vote.userId !== userId),
+      { userId, voteType }
+    ];
 
-    if (counter.votesAccept >= Math.ceil(group.buyerCount * 0.6)) {
+    if (group.buyerCount > 0 && counter.votesAccept >= Math.ceil(group.buyerCount * 0.6)) {
       counter.status = "accepted";
       group.proposal.status = "accepted";
       group.messages.push({
         id: "sys_cntr_win_" + Date.now(),
         senderId: "system",
-        senderName: "Deal Finalized!",
+        senderName: "Demo Vote Threshold Reached",
         role: "Automated",
         avatar: "assets/dealer-badge.svg",
-        text: `🎉 The group has officially ACCEPTED the counter-offer from ${counter.dealership}! Discount secured: $${counter.offeredDiscount.toLocaleString()} per vehicle. Contract finalization documents ready.`,
+        text: `🎉 The demo vote threshold was reached for ${counter.dealership}. This sample discount is not secured and no contract was created.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isSystem: true
       });
     }
 
     this.notify("COUNTER_OFFER_VOTED", { groupId, counterId, voteType, counter });
+    return true;
   }
 
   submitDealerCounterOffer(groupId, dealershipName, managerName, offeredDiscount, perks, terms) {
     const group = this.state.groups.find(g => g.id === groupId);
-    if (!group) return null;
+    const discount = Number(offeredDiscount);
+    if (!group || !Number.isFinite(discount) || discount < 500 || discount > 15000) return null;
 
     const counter = {
       id: "counter_" + Date.now(),
       dealership: dealershipName,
       salesManager: managerName,
       verifiedBadge: true,
-      offeredDiscount: Number(offeredDiscount),
+      offeredDiscount: discount,
       perksIncluded: perks || "Standard group complimentary bundle",
       terms: terms || "Delivery within 5 business days of contract issuance.",
       status: "active",
-      votesAccept: 1,
+      votesAccept: 0,
       votesReject: 0
     };
 
@@ -397,10 +409,10 @@ class Store {
     group.messages.push({
       id: "sys_dealer_cntr_" + Date.now(),
       senderId: "system",
-      senderName: "Dealership Counter-Offer Received",
-      role: "Verified Dealer",
+      senderName: "Sample Counter-Offer Added",
+      role: "Demo",
       avatar: "assets/dealer-badge.svg",
-      text: `📢 ${dealershipName} (${managerName}) just published an official counter-offer: $${Number(offeredDiscount).toLocaleString()} off MSRP! Perks: ${counter.perksIncluded}. Review and cast your vote!`,
+      text: `📢 A sample counter-offer for ${dealershipName} was added locally: $${discount.toLocaleString()} off MSRP. No dealership submitted this offer.`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       isSystem: true
     });
@@ -417,17 +429,24 @@ class Store {
   }
 
   createNewBuyingGroup(groupPayload) {
+    if (!groupPayload || typeof groupPayload !== "object") return null;
+    const brand = String(groupPayload.brand || "").trim();
+    const model = String(groupPayload.model || "").trim();
+    const location = String(groupPayload.location || this.state.currentUser.city || "").trim();
+    const msrp = Number(groupPayload.msrp);
+    if (!brand || !model || !location || !Number.isFinite(msrp) || msrp < 20000 || msrp > 150000) return null;
+
     const user = this.state.currentUser;
     const newId = "group_" + Date.now();
     const newGroup = {
       id: newId,
-      title: groupPayload.title || `${groupPayload.brand} ${groupPayload.model} Collective`,
-      brand: groupPayload.brand,
-      model: groupPayload.model,
+      title: groupPayload.title || `${brand} ${model} Collective`,
+      brand,
+      model,
       year: Number(groupPayload.year) || 2025,
       bodyType: groupPayload.bodyType || "SUV",
-      msrp: Number(groupPayload.msrp) || 42000,
-      location: groupPayload.location || user.city || "Atlanta, GA",
+      msrp,
+      location,
       radiusMiles: Number(groupPayload.radiusMiles) || 30,
       targetDealerships: groupPayload.targetDealerships || ["Certified Regional Volume Dealers"],
       image: groupPayload.image || "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=900&q=80",
@@ -435,9 +454,9 @@ class Store {
       expirationDate: new Date(Date.now() + 72 * 3600 * 1000).toISOString(),
       description: groupPayload.description || `Group buyers combining orders for ${groupPayload.brand} ${groupPayload.model} with volume discounts.`,
       tiers: [
-        { tier: 1, minBuyers: 3, maxBuyers: 5, discount: Math.round(groupPayload.msrp * 0.07), label: `$${Math.round(groupPayload.msrp * 0.07).toLocaleString()} Off MSRP`, perks: "All-Weather Mats + Dealer Fee Waiver" },
-        { tier: 2, minBuyers: 6, maxBuyers: 9, discount: Math.round(groupPayload.msrp * 0.11), label: `$${Math.round(groupPayload.msrp * 0.11).toLocaleString()} Off MSRP`, perks: "Ceramic Tint + 2-Yr Scheduled Maintenance" },
-        { tier: 3, minBuyers: 10, maxBuyers: 15, discount: Math.round(groupPayload.msrp * 0.15), label: `$${Math.round(groupPayload.msrp * 0.15).toLocaleString()} Off MSRP`, perks: "3-Yr Warranty Extension + Free Home Delivery" }
+        { tier: 1, minBuyers: 3, maxBuyers: 5, discount: Math.round(msrp * 0.07), label: `$${Math.round(msrp * 0.07).toLocaleString()} Off MSRP`, perks: "All-Weather Mats + Dealer Fee Waiver" },
+        { tier: 2, minBuyers: 6, maxBuyers: 9, discount: Math.round(msrp * 0.11), label: `$${Math.round(msrp * 0.11).toLocaleString()} Off MSRP`, perks: "Ceramic Tint + 2-Yr Scheduled Maintenance" },
+        { tier: 3, minBuyers: 10, maxBuyers: 15, discount: Math.round(msrp * 0.15), label: `$${Math.round(msrp * 0.15).toLocaleString()} Off MSRP`, perks: "3-Yr Warranty Extension + Free Home Delivery" }
       ],
       currentTierIndex: 0,
       buyerCount: 1,
@@ -458,7 +477,7 @@ class Store {
         status: "draft",
         dispatchedAt: null,
         expiresAt: null,
-        requestedDiscount: Math.round(groupPayload.msrp * 0.07),
+        requestedDiscount: Math.round(msrp * 0.07),
         dealershipsContacted: 0,
         counterOffers: []
       },

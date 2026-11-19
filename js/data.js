@@ -44,7 +44,7 @@ export const INITIAL_DATA = {
       targetDealerships: ["Hendrick Toyota Sandy Springs", "Jim Ellis Toyota of McDonough", "Nalley Toyota Stonecrest"],
       image: "https://images.unsplash.com/photo-1581540222194-0def2dda95b8?auto=format&fit=crop&w=900&q=80",
       expiresInHours: 38,
-      expirationDate: "2026-11-05T18:00:00",
+      expirationDate: new Date(Date.now() + 38 * 60 * 60 * 1000).toISOString(),
       description: "Combining 8-12 buyers in Metro Atlanta to demand fleet invoice pricing on 2025 RAV4 Hybrids with zero dealer markups and waived doc fees.",
       tiers: [
         { tier: 1, minBuyers: 3, maxBuyers: 5, discount: 2200, label: "$2,200 Off MSRP", perks: "Free All-Weather Floor Mats" },
@@ -80,7 +80,7 @@ export const INITIAL_DATA = {
             perksIncluded: "Full Ceramic Tint + 2 Years Free Scheduled Maintenance + Express Delivery",
             terms: "Valid for delivery on or before this Sunday 5 PM. Minimum 6 buyers finalizing contracts.",
             status: "active",
-            votesAccept: 5,
+            votesAccept: 4,
             votesReject: 1
           }
         ]
@@ -117,7 +117,7 @@ export const INITIAL_DATA = {
           senderName: "Sarah Chen",
           role: "Captain",
           avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80",
-          text: "Welcome everyone! We just crossed 7 committed buyers. Tier 2 ($3,800 off) is officially unlocked. If we get 3 more, we hit Tier 3 ($5,200 off)!",
+          text: "Sample group update: 7 demo buyers are shown at Tier 2 ($3,800 off). Three more would reach the example Tier 3 ($5,200 off).",
           timestamp: "09:14 AM",
           isSystem: false
         },
@@ -127,7 +127,7 @@ export const INITIAL_DATA = {
           senderName: "Marcus Vance",
           role: "Buyer",
           avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80",
-          text: "I called Hendrick's fleet manager yesterday. He said if we show up with 8+ signed pre-approvals, they will beat invoice price and throw in complimentary tint.",
+          text: "Example chat: a larger group might ask a dealership about invoice pricing and complimentary tint.",
           timestamp: "09:32 AM",
           isSystem: false
         },
@@ -137,7 +137,7 @@ export const INITIAL_DATA = {
           senderName: "Relate Pitch Engine",
           role: "Automated",
           avatar: "assets/relate-icon.svg",
-          text: "⚡ Joint Intent Proposal #ATL-RAV4-99 dispatched to 3 certified dealerships. Response timer started (48h).",
+          text: "⚡ Sample proposal preview for this group. No dealerships were contacted.",
           timestamp: "10:15 AM",
           isSystem: true
         },
@@ -155,9 +155,9 @@ export const INITIAL_DATA = {
           id: "msg_5",
           senderId: "system",
           senderName: "Dealership Counter-Offer Alert",
-          role: "Verified Dealer",
+          role: "Demo Dealer",
           avatar: "assets/dealer-badge.svg",
-          text: "🎉 Hendrick Toyota Sandy Springs submitted a verified counter-offer: $3,950 Off MSRP + Ceramic Tint! Check the Negotiation tab to vote.",
+          text: "🎉 Sample counter-offer: $3,950 off MSRP + ceramic tint. This is not an offer from Hendrick Toyota.",
           timestamp: "11:20 AM",
           isSystem: true
         }
@@ -177,7 +177,7 @@ export const INITIAL_DATA = {
       targetDealerships: ["Tesla Austin Delivery Hub - Pond Springs", "Tesla Stassney Showroom"],
       image: "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=900&q=80",
       expiresInHours: 19,
-      expirationDate: "2026-11-04T12:00:00",
+      expirationDate: new Date(Date.now() + 19 * 60 * 60 * 1000).toISOString(),
       description: "Aggregating 10+ Tesla buyers in Austin to negotiate bulk inventory adjustments, Supercharging credits ($1,000 credit value), and expedited end-of-quarter delivery.",
       tiers: [
         { tier: 1, minBuyers: 4, maxBuyers: 7, discount: 2500, label: "$2,500 Off / Credit", perks: "5,000 Free Supercharger Miles" },
@@ -255,7 +255,7 @@ export const INITIAL_DATA = {
       targetDealerships: ["Classic BMW Plano", "BMW of Dallas (Lemmon Ave)", "Autobahn BMW Fort Worth"],
       image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=900&q=80",
       expiresInHours: 52,
-      expirationDate: "2026-11-06T15:00:00",
+      expirationDate: new Date(Date.now() + 52 * 60 * 60 * 1000).toISOString(),
       description: "Aggregating 6-8 executive & enthusiast buyers seeking Portimao Blue, Brooklyn Grey or Tanzanite Blue M340i xDrive sedans with Shadowline package.",
       tiers: [
         { tier: 1, minBuyers: 3, maxBuyers: 4, discount: 3500, label: "$3,500 Off MSRP", perks: "Complimentary BMW M Performance Mats" },
@@ -321,7 +321,7 @@ export const INITIAL_DATA = {
       targetDealerships: ["Town and Country Ford", "Capital Ford of Charlotte"],
       image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=900&q=80",
       expiresInHours: 44,
-      expirationDate: "2026-11-06T00:00:00",
+      expirationDate: new Date(Date.now() + 44 * 60 * 60 * 1000).toISOString(),
       description: "Aggregating small business contractors and private truck buyers across Charlotte and Piedmont for maximum X-Plan volume kickbacks.",
       tiers: [
         { tier: 1, minBuyers: 3, maxBuyers: 5, discount: 3000, label: "$3,000 Off MSRP", perks: "Spray-in Bedliner Included" },
@@ -352,7 +352,7 @@ export const INITIAL_DATA = {
             perksIncluded: "Spray-in Bedliner + WeatherTech Mat Set + First 3 Oil/Filter Changes Free",
             terms: "Requires taking delivery by Friday close of business.",
             status: "active",
-            votesAccept: 4,
+            votesAccept: 3,
             votesReject: 0
           }
         ]
@@ -397,7 +397,7 @@ export const INITIAL_DATA = {
       targetDealerships: ["Keyes Hyundai Van Nuys", "Glendale Hyundai", "Norm Reeves Hyundai"],
       image: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=900&q=80",
       expiresInHours: 29,
-      expirationDate: "2026-11-05T09:00:00",
+      expirationDate: new Date(Date.now() + 29 * 60 * 60 * 1000).toISOString(),
       description: "Combining buyers across LA & Orange County to unlock manufacturer volume incentives + dealer trunk money.",
       tiers: [
         { tier: 1, minBuyers: 3, maxBuyers: 5, discount: 2800, label: "$2,800 Off MSRP", perks: "Free Level 2 Home Charger Cable" },
@@ -436,7 +436,7 @@ export const INITIAL_DATA = {
       targetDealerships: ["McGrath City Honda", "Fletcher Jones Honda", "Valley Honda Aurora"],
       image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=900&q=80",
       expiresInHours: 61,
-      expirationDate: "2026-11-06T20:00:00",
+      expirationDate: new Date(Date.now() + 61 * 60 * 60 * 1000).toISOString(),
       description: "Chicagoland buyers combining orders for AWD Sport-L trim with remote start and winter weather protection packs.",
       tiers: [
         { tier: 1, minBuyers: 3, maxBuyers: 5, discount: 2100, label: "$2,100 Off MSRP", perks: "All-Season Rubber High-Wall Mats" },

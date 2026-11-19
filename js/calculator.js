@@ -31,7 +31,7 @@ export class SavingsCalculator {
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A25F2A" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="4"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><line x1="8" y1="10" x2="8" y2="10.01"></line><line x1="12" y1="10" x2="12" y2="10.01"></line><line x1="16" y1="10" x2="16" y2="10.01"></line><line x1="8" y1="14" x2="8" y2="14.01"></line><line x1="12" y1="14" x2="12" y2="14.01"></line><line x1="8" y1="18" x2="8" y2="18.01"></line><line x1="12" y1="18" x2="12" y2="18.01"></line></svg>
             <h4>Group Buying Savings Calculator</h4>
           </div>
-          <span class="badge badge-orange">${group.brand} ${group.model}</span>
+          <span class="badge badge-orange" id="calc-vehicle-name"></span>
         </div>
 
         <div class="calc-grid">
@@ -106,6 +106,7 @@ export class SavingsCalculator {
       </div>
     `;
 
+    document.getElementById("calc-vehicle-name").textContent = `${group.brand} ${group.model}`;
     this.bindEvents(msrp, discount);
     this.updateCalculations(msrp, discount);
   }
@@ -144,8 +145,8 @@ export class SavingsCalculator {
       return (principal * (rate * Math.pow(1 + rate, n))) / (Math.pow(1 + rate, n) - 1);
     };
 
-    const soloMonthly = Math.round(calcMonthly(soloPrincipal, monthlyRate, months));
-    const groupMonthly = Math.round(calcMonthly(groupPrincipal, monthlyRate, months));
+    const soloMonthly = calcMonthly(soloPrincipal, monthlyRate, months);
+    const groupMonthly = calcMonthly(groupPrincipal, monthlyRate, months);
     const diff = soloMonthly - groupMonthly;
 
     const totalSoloPaid = soloMonthly * months + downPayment;
@@ -157,9 +158,10 @@ export class SavingsCalculator {
     const totalEl = document.getElementById("calc-total-savings");
     const diffEl = document.getElementById("calc-monthly-diff");
 
-    if (soloEl) soloEl.textContent = `$${soloMonthly} / mo`;
-    if (groupEl) groupEl.textContent = `$${groupMonthly} / mo`;
+    if (soloEl) soloEl.textContent = `$${soloMonthly.toFixed(2)} / mo`;
+    if (groupEl) groupEl.textContent = `$${groupMonthly.toFixed(2)} / mo`;
     if (totalEl) totalEl.textContent = `$${totalSavings.toLocaleString()}`;
-    if (diffEl) diffEl.textContent = `Saving ~$${diff} every month for ${months} months!`;
+    if (diffEl) diffEl.textContent = `Saving ~$${diff.toFixed(2)} every month for ${months} months!`;
   }
+
 }

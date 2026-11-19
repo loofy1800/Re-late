@@ -32,8 +32,8 @@ export class ChatEngine {
           <div class="chat-stream-header">
             <div class="chat-title-group">
               <span class="live-pulse-dot"></span>
-              <h4>Live Buyer Coordination</h4>
-              <span class="chat-online-badge">${group.buyerCount} active co-buyers</span>
+              <h4>Buyer Coordination Demo</h4>
+              <span class="chat-online-badge">${group.buyerCount} sample buyers</span>
             </div>
             <div class="chat-stream-actions">
               <button type="button" class="btn btn-secondary btn-sm btn-3d" id="btn-open-poll-modal">
@@ -77,7 +77,7 @@ export class ChatEngine {
             <div class="sidebar-box-header">
               <h5>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                Verified Buyer Roster (${group.members.length})
+                Sample Buyer Roster (${group.members.length})
               </h5>
             </div>
             <div class="roster-list">
@@ -85,8 +85,8 @@ export class ChatEngine {
             </div>
             <div class="roster-footer">
               <div class="verification-stat">
-                <span class="text-success">✔ 100% Pre-Screened</span>
-                <span class="text-muted">Escrow & Financing Verified</span>
+                <span class="text-muted">Sample profiles only</span>
+                <span class="text-muted">No identity, escrow, or financing checks are performed.</span>
               </div>
             </div>
           </div>
@@ -114,7 +114,7 @@ export class ChatEngine {
             <div class="system-msg-pill">
               <span class="system-icon">⚡</span>
               <span class="system-text">${this.escapeHtml(msg.text)}</span>
-              <span class="system-time">${msg.timestamp}</span>
+              <span class="system-time">${this.escapeHtml(msg.timestamp)}</span>
             </div>
           </div>
         `;
@@ -124,16 +124,16 @@ export class ChatEngine {
 
       return `
         <div class="chat-bubble-row ${isCurrentUser ? 'current-user-msg' : 'peer-msg'}">
-          ${!isCurrentUser ? `<img src="${msg.avatar}" alt="${msg.senderName}" class="chat-avatar">` : ''}
+          ${!isCurrentUser ? `<img src="${this.escapeHtml(msg.avatar)}" alt="${this.escapeHtml(msg.senderName)}" class="chat-avatar">` : ''}
           <div class="chat-bubble-content">
             <div class="chat-bubble-meta">
               <span class="chat-sender-name">${this.escapeHtml(msg.senderName)}</span>
-              <span class="chat-role-badge ${msg.role === 'Captain' ? 'badge-orange' : 'badge-neutral'}">${msg.role}</span>
-              <span class="chat-time">${msg.timestamp}</span>
+              <span class="chat-role-badge ${msg.role === 'Captain' ? 'badge-orange' : 'badge-neutral'}">${this.escapeHtml(msg.role)}</span>
+              <span class="chat-time">${this.escapeHtml(msg.timestamp)}</span>
             </div>
             <div class="chat-bubble-text">${this.escapeHtml(msg.text)}</div>
           </div>
-          ${isCurrentUser ? `<img src="${msg.avatar}" alt="${msg.senderName}" class="chat-avatar">` : ''}
+          ${isCurrentUser ? `<img src="${this.escapeHtml(msg.avatar)}" alt="${this.escapeHtml(msg.senderName)}" class="chat-avatar">` : ''}
         </div>
       `;
     }).join("");
@@ -149,9 +149,8 @@ export class ChatEngine {
     }
 
     return polls.map(poll => {
-      const total = poll.totalVotes || 1;
       return `
-        <div class="poll-card" data-poll-id="${poll.id}">
+        <div class="poll-card" data-poll-id="${this.escapeHtml(poll.id)}">
           <div class="poll-question-row">
             <h6>${this.escapeHtml(poll.question)}</h6>
             <span class="poll-votes-badge">${poll.totalVotes} votes</span>
@@ -164,7 +163,7 @@ export class ChatEngine {
               const isSelected = poll.userVoted === opt.id;
 
               return `
-                <button type="button" class="poll-option-btn ${isSelected ? 'voted' : ''}" data-vote-opt="${opt.id}">
+                <button type="button" class="poll-option-btn ${isSelected ? 'voted' : ''}" data-vote-opt="${this.escapeHtml(opt.id)}">
                   <div class="poll-progress-fill" style="width: ${pct}%"></div>
                   <div class="poll-option-content">
                     <span class="poll-check-icon">${isSelected ? '✓ ' : ''}</span>
@@ -190,22 +189,20 @@ export class ChatEngine {
       return `
         <div class="roster-member-row">
           <div class="roster-rank">#${index + 1}</div>
-          <img src="${m.avatar}" alt="${m.name}" class="avatar-sm">
+          <img src="${this.escapeHtml(m.avatar)}" alt="${this.escapeHtml(m.name)}" class="avatar-sm">
           <div class="roster-details">
             <div class="roster-name-line">
               <span class="roster-name">${this.escapeHtml(m.name)}</span>
               ${isCaptain ? `<span class="badge badge-orange-sm">Captain</span>` : ''}
             </div>
             <div class="roster-subline">
-              <span class="roster-zip">📍 ${m.zip}</span>
+              <span class="roster-zip">📍 ${this.escapeHtml(m.zip)}</span>
               <span class="roster-status ${m.status.includes('Pre-Approved') ? 'status-green' : 'status-blue'}">
-                ● ${m.status}
+                ● ${this.escapeHtml(m.status)}
               </span>
             </div>
           </div>
-          <div class="roster-badge-check" title="Deposit Verified">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#059669"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-          </div>
+          <span class="text-muted small">${m.deposit ? "Sample deposit listed" : "No sample deposit listed"}</span>
         </div>
       `;
     }).join("");
@@ -277,7 +274,7 @@ export class ChatEngine {
       if (lower.includes("price") || lower.includes("discount") || lower.includes("tier")) {
         replyText = "If we can recruit just 2 more buyers to the group, the tier jumps significantly!";
       } else if (lower.includes("dealer") || lower.includes("hendrick") || lower.includes("ellis")) {
-        replyText = "I know the sales manager at Hendrick is actively checking our live count on Relate today.";
+        replyText = "A live buyer count could help explain the group's interest in a real dealership conversation.";
       } else if (lower.includes("when") || lower.includes("time") || lower.includes("saturday")) {
         replyText = "Saturday 11 AM works best for me too so we can sign everything as a fleet unit.";
       } else if (lower.includes("color") || lower.includes("trim")) {

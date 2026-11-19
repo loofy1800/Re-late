@@ -29,6 +29,14 @@ class RelateApp {
     this.authManager = new AuthManager();
     this.bindHeaderEvents();
     this.bindGlobalActions();
+    const sharedGroupId = new URLSearchParams(window.location.search).get("group");
+    if (sharedGroupId) {
+      if (store.getState().groups.some(group => group.id === sharedGroupId)) {
+        store.selectGroup(sharedGroupId, "workbench");
+      } else {
+        window.relateToast.show("This demo group is not stored in this browser. Group data is never uploaded.");
+      }
+    }
     this.startCountdownLoop();
 
     // Subscribe to store updates
@@ -55,7 +63,7 @@ class RelateApp {
         toastEl.innerHTML = `
           <div class="toast-card toast-3d">
             <span class="toast-icon">⚡</span>
-            <span class="toast-msg">${message}</span>
+            <span class="toast-msg">${this.escapeHtml(String(message))}</span>
           </div>
         `;
         toastEl.classList.add("visible");
@@ -126,13 +134,6 @@ class RelateApp {
       });
     }
 
-    // Create Group Trigger in Header & Hero
-    document.querySelectorAll("[data-action='open-create-group']").forEach(btn => {
-      btn.addEventListener("click", () => {
-        sound.playClick();
-        this.openCreateGroupModal();
-      });
-    });
   }
 
   updateSoundButtonUI(isMuted) {
@@ -163,23 +164,25 @@ class RelateApp {
   }
 
   bindGlobalActions() {
-    // Hero CTA buttons
-    const heroFindBtn = document.getElementById("hero-btn-find-groups");
-    if (heroFindBtn) {
-      heroFindBtn.addEventListener("click", () => {
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("[data-action='open-create-group']")) {
+        e.preventDefault();
+        sound.playClick();
+        this.openCreateGroupModal();
+      } else if (e.target.closest("[data-action='browse-groups']")) {
+        e.preventDefault();
+        sound.playClick();
+        store.toggleDealerMode(false);
+        store.setView("browse");
+      } else if (e.target.closest("#hero-btn-find-groups")) {
         sound.playClick();
         store.setView("browse");
         document.getElementById("deals-feed-section")?.scrollIntoView({ behavior: "smooth" });
-      });
-    }
-
-    const heroDealerBtn = document.getElementById("hero-btn-dealer");
-    if (heroDealerBtn) {
-      heroDealerBtn.addEventListener("click", () => {
+      } else if (e.target.closest("#hero-btn-dealer")) {
         sound.playClick();
         store.toggleDealerMode(true);
-      });
-    }
+      }
+    });
   }
 
   renderCurrentView() {
@@ -233,27 +236,27 @@ class RelateApp {
         <div class="hero-content">
           <div class="hero-pill-badge">
             <span class="badge-dot-pulse"></span>
-            Real-Time Collective Auto Purchasing Power
+            Sample Group Car-Buying Experience
           </div>
           <h1 class="hero-headline">
             Combine Your Buying Power.<br>
-            <span class="text-orange">Get Group Car Deals in Real Time.</span>
+            <span class="text-orange">Explore Sample Group Car Deals.</span>
           </h1>
           <p class="hero-subtext">
-            Join local buyers targeting the exact vehicle you want. Unlock fleet-level dealership invoice pricing with verified group proposals—zero markups, waived doc fees.
+            Explore sample group offers and local coordination flows. All pricing, buyers, and dealership activity shown here are illustrative.
           </p>
 
           <div class="hero-cta-group">
             <button type="button" class="btn btn-primary btn-lg btn-3d" id="hero-btn-find-groups">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              Find Active Buying Groups
+              Browse Sample Groups
             </button>
             <button type="button" class="btn btn-secondary btn-lg btn-3d" data-action="open-create-group">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              Start a New Buying Group
+              Create Demo Group
             </button>
             <button type="button" class="btn btn-dark btn-lg btn-3d" id="hero-btn-dealer">
-              Dealership Fleet Portal ↗
+              Dealer Portal Demo ↗
             </button>
           </div>
 
@@ -261,19 +264,19 @@ class RelateApp {
           <div class="hero-ticker-metrics">
             <div class="ticker-box card-3d">
               <span class="ticker-num text-orange">$4,280,000+</span>
-              <span class="ticker-lbl">Total Group Bulk Savings</span>
+              <span class="ticker-lbl">Illustrative Group Savings</span>
             </div>
             <div class="ticker-box card-3d">
               <span class="ticker-num">${state.groups.length} Groups</span>
-              <span class="ticker-lbl">Active In Your Metro Radius</span>
+              <span class="ticker-lbl">Sample Groups In This Demo</span>
             </div>
             <div class="ticker-box card-3d">
               <span class="ticker-num text-success">$4,120 Avg</span>
-              <span class="ticker-lbl">Discount Off Manufacturer MSRP</span>
+              <span class="ticker-lbl">Illustrative MSRP Discount</span>
             </div>
             <div class="ticker-box card-3d">
-              <span class="ticker-num">48h SLA</span>
-              <span class="ticker-lbl">Guaranteed Dealer Response Time</span>
+              <span class="ticker-num">48h Demo</span>
+              <span class="ticker-lbl">Local Demo Response Window</span>
             </div>
           </div>
         </div>
@@ -283,11 +286,11 @@ class RelateApp {
       <section class="deals-feed-section" id="deals-feed-section">
         <div class="feed-header-row">
           <div>
-            <h2 class="section-title">Live Real-Time Dealership Offers</h2>
-            <p class="text-muted">Explore active buyer groups. Each additional buyer unlocks higher discount tiers.</p>
+            <h2 class="section-title">Sample Group Buying Deals</h2>
+            <p class="text-muted">Explore sample groups and illustrative discount tiers. No offers are sent to dealerships.</p>
           </div>
           <div class="feed-summary-count">
-            Showing <strong>${groups.length}</strong> verified group deals
+            Showing <strong>${groups.length}</strong> sample group deals
           </div>
         </div>
 
@@ -315,12 +318,12 @@ class RelateApp {
             </div>
 
             <div class="filter-select-group">
-              <label for="filter-radius">Search Radius:</label>
+              <label for="filter-radius">Maximum Group Radius:</label>
               <select id="filter-radius" class="filter-select">
-                <option value="25" ${state.filters.radius == 25 ? 'selected' : ''}>Within 25 Miles</option>
-                <option value="50" ${state.filters.radius == 50 ? 'selected' : ''}>Within 50 Miles</option>
-                <option value="100" ${state.filters.radius == 100 ? 'selected' : ''}>Within 100 Miles</option>
-                <option value="500" ${state.filters.radius == 500 ? 'selected' : ''}>Nationwide</option>
+                <option value="25" ${state.filters.radius == 25 ? 'selected' : ''}>Groups up to 25 Miles</option>
+                <option value="50" ${state.filters.radius == 50 ? 'selected' : ''}>Groups up to 50 Miles</option>
+                <option value="100" ${state.filters.radius == 100 ? 'selected' : ''}>Groups up to 100 Miles</option>
+                <option value="500" ${state.filters.radius == 500 ? 'selected' : ''}>Any Group Radius</option>
               </select>
             </div>
 
@@ -370,6 +373,9 @@ class RelateApp {
       if (g.msrp > filters.maxPrice) {
         return false;
       }
+      if (filters.radius < 500 && g.radiusMiles > filters.radius) {
+        return false;
+      }
       // Location search
       if (filters.location !== "all" && !g.location.toLowerCase().includes(filters.location.toLowerCase())) {
         return false;
@@ -389,18 +395,20 @@ class RelateApp {
     const nextTier = group.tiers[group.currentTierIndex + 1];
     const isJoined = store.getState().currentUser.joinedGroupIds.includes(group.id);
     const buyersToNext = nextTier ? Math.max(0, nextTier.minBuyers - group.buyerCount) : 0;
-    const progressPct = Math.min(100, Math.round((group.buyerCount / group.maxCapacity) * 100));
+    const progressPct = group.maxCapacity > 0
+      ? Math.max(0, Math.min(100, Math.round((group.buyerCount / group.maxCapacity) * 100)))
+      : 0;
 
     return `
-      <div class="deal-card card-3d" data-group-id="${group.id}">
+      <div class="deal-card card-3d" data-group-id="${this.escapeHtml(group.id)}">
         <!-- IMAGE & BADGES -->
         <div class="deal-card-media">
-          <img src="${group.image}" alt="${group.brand} ${group.model}" class="deal-image" loading="lazy">
+          <img src="${this.escapeHtml(group.image)}" alt="${this.escapeHtml(`${group.brand} ${group.model}`)}" class="deal-image" loading="lazy">
           <div class="media-badges-overlay">
-            <span class="badge badge-dark-glass">📍 ${group.location} (${group.radiusMiles} mi)</span>
+            <span class="badge badge-dark-glass">📍 ${this.escapeHtml(group.location)} (${group.radiusMiles} mi)</span>
             <span class="badge badge-orange-glass">Tier ${group.currentTierIndex + 1} Active</span>
           </div>
-          <div class="countdown-chip" data-countdown-date="${group.expirationDate}">
+          <div class="countdown-chip" data-countdown-date="${this.escapeHtml(group.expirationDate)}">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             <span class="countdown-text">${group.expiresInHours}h remaining</span>
           </div>
@@ -421,8 +429,8 @@ class RelateApp {
               <span class="group-price">$${(group.msrp - activeTier.discount).toLocaleString()}</span>
             </div>
             <div class="discount-savings-badge">
-              <strong>${activeTier.label}</strong>
-              <span class="perk-note">+ ${activeTier.perks}</span>
+              <strong>${this.escapeHtml(activeTier.label)}</strong>
+              <span class="perk-note">+ ${this.escapeHtml(activeTier.perks)}</span>
             </div>
           </div>
 
@@ -430,7 +438,7 @@ class RelateApp {
           <div class="tier-progress-section">
             <div class="tier-progress-header">
               <span class="progress-lbl">
-                <strong>${group.buyerCount}</strong> of ${group.maxCapacity} buyers committed
+                <strong>${group.buyerCount}</strong> of ${group.maxCapacity} sample buyers
               </span>
               <span class="next-tier-hint ${buyersToNext === 0 ? 'text-success' : 'text-orange'}">
                 ${buyersToNext === 0 ? '🏆 Max Tier Unlocked!' : `${buyersToNext} more to unlock ${nextTier?.label}!`}
@@ -455,23 +463,23 @@ class RelateApp {
           <div class="card-meta-footer">
             <div class="avatar-stack">
               ${group.members.slice(0, 4).map(m => `
-                <img src="${m.avatar}" alt="${m.name}" class="avatar-stacked" title="${m.name} (${m.status})">
+                <img src="${this.escapeHtml(m.avatar)}" alt="${this.escapeHtml(m.name)}" class="avatar-stacked" title="${this.escapeHtml(`${m.name} (${m.status})`)}">
               `).join("")}
               ${group.members.length > 4 ? `
                 <span class="avatar-stack-more">+${group.members.length - 4}</span>
               ` : ''}
             </div>
-            <div class="target-dealer-hint" title="${group.targetDealerships.join(', ')}">
-              🏢 ${group.targetDealerships[0].split(" ")[0]} Dealership Pool
+            <div class="target-dealer-hint" title="${this.escapeHtml(group.targetDealerships.join(', '))}">
+              🏢 ${this.escapeHtml(group.targetDealerships[0].split(" ")[0])} Dealership Pool
             </div>
           </div>
 
           <!-- ACTION BUTTONS -->
           <div class="card-actions-grid">
-            <button type="button" class="btn ${isJoined ? 'btn-secondary' : 'btn-primary'} btn-3d" data-action="toggle-join" data-group-id="${group.id}">
+            <button type="button" class="btn ${isJoined ? 'btn-secondary' : 'btn-primary'} btn-3d" data-action="toggle-join" data-group-id="${this.escapeHtml(group.id)}">
               ${isJoined ? '✓ Joined Group' : '+ Join Group Deal'}
             </button>
-            <button type="button" class="btn btn-dark btn-3d" data-action="open-workbench" data-group-id="${group.id}">
+            <button type="button" class="btn btn-dark btn-3d" data-action="open-workbench" data-group-id="${this.escapeHtml(group.id)}">
               Workbench ↗
             </button>
           </div>
@@ -509,6 +517,8 @@ class RelateApp {
     const priceVal = document.getElementById("filter-price-val");
     priceSlider?.addEventListener("input", (e) => {
       priceVal.textContent = `$${Number(e.target.value).toLocaleString()}`;
+    });
+    priceSlider?.addEventListener("change", (e) => {
       store.setFilters({ maxPrice: Number(e.target.value) });
     });
 
@@ -525,7 +535,9 @@ class RelateApp {
         const gid = btn.getAttribute("data-group-id");
         sound.playClick();
         const joined = store.toggleJoinGroup(gid);
-        if (joined) {
+        if (joined === null) {
+          window.relateToast?.show("This buying group has reached its buyer capacity.");
+        } else if (joined) {
           sound.playJoinSuccess();
           window.relateToast?.show("🚀 You joined the buying group! You've increased the collective leverage.");
         } else {
@@ -574,8 +586,8 @@ class RelateApp {
             </button>
             <div class="group-title-cluster">
               <div class="title-meta-line">
-                <span class="badge badge-orange">${group.brand} Group Buying Hub</span>
-                <span class="badge badge-dark">📍 ${group.location}</span>
+                <span class="badge badge-orange">${this.escapeHtml(group.brand)} Group Buying Hub</span>
+                <span class="badge badge-dark">📍 ${this.escapeHtml(group.location)}</span>
                 <span class="badge badge-success">Tier ${group.currentTierIndex + 1} ($${activeTier.discount.toLocaleString()} Off)</span>
               </div>
               <h2 class="workbench-title">${this.escapeHtml(group.title)}</h2>
@@ -670,13 +682,13 @@ class RelateApp {
         <!-- VEHICLE SPOTLIGHT -->
         <div class="offer-spotlight-card card-3d">
           <div class="spotlight-media-grid">
-            <img src="${group.image}" alt="${group.brand} ${group.model}" class="spotlight-img">
+            <img src="${this.escapeHtml(group.image)}" alt="${this.escapeHtml(`${group.brand} ${group.model}`)}" class="spotlight-img">
             <div class="spotlight-details">
               <div class="spotlight-header">
-                <span class="badge badge-dark">${group.year} • ${group.bodyType}</span>
+                <span class="badge badge-dark">${group.year} • ${this.escapeHtml(group.bodyType)}</span>
                 <span class="badge badge-orange">Group Fleet Special</span>
               </div>
-              <h3>${group.year} ${group.brand} ${group.model}</h3>
+              <h3>${group.year} ${this.escapeHtml(group.brand)} ${this.escapeHtml(group.model)}</h3>
               <p class="text-muted">${this.escapeHtml(group.description)}</p>
 
               <div class="spotlight-pricing-matrix">
@@ -733,7 +745,7 @@ class RelateApp {
                   </div>
                   <div class="t-card-perks">
                     <strong>Included Fleet Perks:</strong><br>
-                    ${t.perks}
+                    ${this.escapeHtml(t.perks)}
                   </div>
                   <div class="t-card-status-footer">
                     ${isCurrent ? `
@@ -753,8 +765,8 @@ class RelateApp {
         <!-- TARGET DEALERSHIPS INVENTORY ALLOCATION -->
         <div class="target-dealerships-panel card-3d">
           <div class="panel-header">
-            <h4>Target Dealerships in Tender Pool (${group.targetDealerships.length})</h4>
-            <span class="text-muted small">Certified volume dealers receiving our Joint Intent Proposal</span>
+            <h4>Example Dealership Targets (${group.targetDealerships.length})</h4>
+            <span class="text-muted small">Sample data only; no proposals are sent</span>
           </div>
 
           <div class="dealers-tender-list">
@@ -762,10 +774,10 @@ class RelateApp {
               <div class="dealer-tender-item">
                 <div class="dealer-icon">🏢</div>
                 <div class="dealer-info">
-                  <strong>${name}</strong>
-                  <div class="text-muted small">Certified Relate Partner • Direct GM Fleet Desk • Zero Dealer Markup Agreement</div>
+                  <strong>${this.escapeHtml(name)}</strong>
+                  <div class="text-muted small">Example dealership profile • not a verified partner</div>
                 </div>
-                <span class="badge badge-success">Verified Active</span>
+                <span class="badge badge-success">Sample</span>
               </div>
             `).join("")}
           </div>
@@ -777,7 +789,11 @@ class RelateApp {
     document.getElementById("btn-spotlight-join")?.addEventListener("click", () => {
       sound.playClick();
       const joined = store.toggleJoinGroup(group.id);
-      if (joined) sound.playJoinSuccess();
+      if (joined === null) {
+        window.relateToast?.show("This buying group has reached its buyer capacity.");
+      } else if (joined) {
+        sound.playJoinSuccess();
+      }
       this.updateWorkbenchTabContent();
     });
 
@@ -798,7 +814,9 @@ class RelateApp {
     document.getElementById("workbench-join-btn")?.addEventListener("click", () => {
       sound.playClick();
       const joined = store.toggleJoinGroup(group.id);
-      if (joined) {
+      if (joined === null) {
+        window.relateToast?.show("This buying group has reached its buyer capacity.");
+      } else if (joined) {
         sound.playJoinSuccess();
         window.relateToast?.show("🚀 You joined the buying group!");
       } else {
@@ -843,9 +861,9 @@ class RelateApp {
           ${myGroups.length > 0 ? myGroups.map(g => this.renderDealCard(g)).join("") : `
             <div class="no-results-box card-3d">
               <h4>You haven't joined any buying groups yet</h4>
-              <p class="text-muted">Explore the live feed to join an active group or start one for your desired vehicle.</p>
-              <button type="button" class="btn btn-primary btn-3d" onclick="store.setView('browse')">
-                Browse Active Groups
+              <p class="text-muted">Browse sample groups or create a demo group for a vehicle.</p>
+              <button type="button" class="btn btn-primary btn-3d" data-action="browse-groups">
+                Browse Sample Groups
               </button>
             </div>
           `}
@@ -861,72 +879,66 @@ class RelateApp {
     container.innerHTML = `
       <div class="how-it-works-container">
         <div class="hiw-hero card-3d">
-          <span class="badge badge-orange">The Relate Model</span>
-          <h2>How Group Buying Outsmarts Traditional Dealership Markups</h2>
+          <span class="badge badge-orange">Demo Walk-Through</span>
+          <h2>Explore the Group-Buying Prototype</h2>
           <p class="text-muted">
-            Individual car buyers have zero leverage against dealer markups and add-on fees. Relate flips the power dynamic by aggregating 5 to 15 local buyers who want the same vehicle, dispatching a single bulk order dealerships cannot refuse.
+            This browser-only demo uses sample groups, prices, buyers, and dealership activity. It does not contact dealerships, verify buyers, or create purchase commitments.
           </p>
         </div>
 
         <div class="hiw-steps-grid">
           <div class="hiw-step-card card-3d">
             <div class="step-badge-num">1</div>
-            <h4>Discover or Launch a Group</h4>
-            <p>Find co-buyers targeting the vehicle make and model you want in your metro area. Set target budget and trim preferences.</p>
+            <h4>Browse or Create a Demo Group</h4>
+            <p>Explore sample vehicles and create a local group with a target budget and vehicle preferences.</p>
           </div>
 
           <div class="hiw-step-card card-3d">
             <div class="step-badge-num">2</div>
-            <h4>Unlock Progressive Bulk Tiers</h4>
-            <p>As each new buyer joins, the collective discount climbs: Tier 1 ($2,500 off), Tier 2 ($4,200 off), Tier 3 ($6,000+ off MSRP).</p>
+            <h4>Explore Illustrative Tiers</h4>
+            <p>Adjust sample buyer counts and see how the example discount tiers change.</p>
           </div>
 
           <div class="hiw-step-card card-3d">
             <div class="step-badge-num">3</div>
-            <h4>Coordinate in Real Time</h4>
-            <p>Use group chat and consensus polls to vote on targeted dealerships, preferred trim packages, and collective signing dates.</p>
+            <h4>Try Local Chat and Polls</h4>
+            <p>Messages, sample replies, and poll votes are stored only in this browser.</p>
           </div>
 
           <div class="hiw-step-card card-3d">
             <div class="step-badge-num">4</div>
-            <h4>Dispatch Joint Intent Proposal</h4>
-            <p>Relate's pitch engine compiles verified pre-approvals into a formal bulk purchase tender sent directly to dealership General Sales Managers.</p>
+            <h4>Preview a Proposal</h4>
+            <p>Run a local animation and inspect an illustrative proposal. Nothing is transmitted to dealerships.</p>
           </div>
 
           <div class="hiw-step-card card-3d">
             <div class="step-badge-num">5</div>
-            <h4>Review Live Dealer Counter-Offers</h4>
-            <p>Dealerships submit competing bids with waived doc fees, complimentary tint, and free maintenance. The group votes to accept the winning deal.</p>
+            <h4>Try the Dealer Portal Demo</h4>
+            <p>Add sample counter-offers and record local votes; they are not real dealership bids.</p>
           </div>
 
           <div class="hiw-step-card card-3d">
             <div class="step-badge-num">6</div>
-            <h4>VIP Group Signing & Delivery</h4>
-            <p>Walk into the dealership as an untouchable fleet buying unit, sign individual purchase contracts at the negotiated bulk price, and drive home!</p>
+            <h4>Compare Example Payments</h4>
+            <p>Use the calculator for illustrative payment estimates, not a quote or financing offer.</p>
           </div>
         </div>
 
         <div class="hiw-cta-box card-3d">
-          <h3>Ready to save thousands on your next car?</h3>
-          <p class="text-muted">Join an active group in your city today or create your own custom group in 60 seconds.</p>
+          <h3>Explore the Relate demo</h3>
+          <p class="text-muted">Browse sample groups or create a local demo group.</p>
           <div class="d-flex gap-3 justify-center mt-3">
-            <button type="button" class="btn btn-primary btn-lg btn-3d" onclick="store.setView('browse')">
-              Browse Active Groups
+            <button type="button" class="btn btn-primary btn-lg btn-3d" data-action="browse-groups">
+              Browse Sample Groups
             </button>
             <button type="button" class="btn btn-secondary btn-lg btn-3d" data-action="open-create-group">
-              Start a Buying Group
+              Create Demo Group
             </button>
           </div>
         </div>
       </div>
     `;
 
-    document.querySelectorAll("[data-action='open-create-group']").forEach(btn => {
-      btn.addEventListener("click", () => {
-        sound.playClick();
-        this.openCreateGroupModal();
-      });
-    });
   }
 
   // --- MODAL: CREATE BUYING GROUP ---
@@ -996,7 +1008,7 @@ class RelateApp {
 
               <div class="form-group">
                 <label class="form-label" for="cg-location">Metro Location</label>
-                <input type="text" id="cg-location" class="form-input" value="${user.city || 'Atlanta, GA'}" required>
+                <input type="text" id="cg-location" class="form-input" value="${this.escapeHtml(user.city || 'Atlanta, GA')}" required>
               </div>
             </div>
 
@@ -1038,6 +1050,10 @@ class RelateApp {
       };
 
       const newGroup = store.createNewBuyingGroup(payload);
+      if (!newGroup) {
+        window.relateToast?.show("Please enter a valid vehicle, model, location, and MSRP.");
+        return;
+      }
       cleanup();
       window.relateToast?.show(`🎉 Group "${newGroup.title}" created! You are the Group Captain.`);
     });
@@ -1045,7 +1061,7 @@ class RelateApp {
 
   // --- MODAL: INVITE LOCAL BUYERS ---
   openInviteModal(group) {
-    const shareUrl = `${window.location.origin}${window.location.pathname}?group=${group.id}`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?group=${encodeURIComponent(group.id)}`;
 
     const modalHtml = `
       <div id="invite-modal" class="modal-backdrop active">
@@ -1053,18 +1069,18 @@ class RelateApp {
           <div class="modal-header">
             <div>
               <span class="badge badge-orange">Recruit Local Buyers</span>
-              <h4>Invite Buyers to Unlock Next Tier</h4>
+              <h4>              Share This Demo Group</h4>
             </div>
             <button type="button" class="modal-close-btn" id="close-inv-modal">&times;</button>
           </div>
 
           <div class="invite-modal-body mt-3">
             <p class="text-muted">
-              Every buyer who joins increases our collective purchasing power. Share this link on Reddit, Facebook Auto Groups, or with friends.
+              This link opens the group only in a browser where its local demo data is already saved. No group data is uploaded or shared between devices.
             </p>
 
             <div class="invite-link-box">
-              <input type="text" id="share-link-input" class="form-input" value="${shareUrl}" readonly>
+              <input type="text" id="share-link-input" class="form-input" value="${this.escapeHtml(shareUrl)}" readonly>
               <button type="button" class="btn btn-primary btn-3d" id="btn-copy-link">
                 Copy Link
               </button>

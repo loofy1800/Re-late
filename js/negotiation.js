@@ -1,8 +1,8 @@
 /**
- * RELATE - Real-Time Dealership Negotiation & Pitch Engine
+ * RELATE - Simulated Dealership Negotiation Demo
  * Handles:
- * 1. Joint Intent Proposal Dispatcher (Formal bulk purchase aggregation)
- * 2. Real-Time Dealership Counter-Offers Feed & Voting
+ * 1. Local Proposal Preview and Dispatch Demo
+ * 2. Sample Counter-Offers Feed & Voting
  * 3. Interactive Formal Document Modal & Inspection
  */
 
@@ -42,16 +42,16 @@ export class NegotiationEngine {
               <span class="status-indicator-dot"></span>
               ${this.getStatusLabel(proposal.status)}
             </div>
-            <h3>Official Joint Intent Proposal #${group.id.toUpperCase().slice(-8)}</h3>
+            <h3>Demo Joint Intent Proposal #${this.escapeHtml(group.id.toUpperCase().slice(-8))}</h3>
             <p class="text-muted">
-              Aggregated collective buying power dispatched to certified dealership General Sales Managers in ${group.location}.
+              Local preview only. Nothing is sent to dealerships in ${this.escapeHtml(group.location)}.
             </p>
           </div>
 
           <div class="hero-right-metrics">
             <div class="metric-pill">
-              <span class="metric-label">Committed Buyers</span>
-              <span class="metric-val">${group.buyerCount} Verified</span>
+              <span class="metric-label">Sample Buyers</span>
+              <span class="metric-val">${group.buyerCount} Sample Buyers</span>
             </div>
             <div class="metric-pill">
               <span class="metric-label">Combined MSRP</span>
@@ -87,11 +87,11 @@ export class NegotiationEngine {
               <div class="doc-watermark">RELATE VERIFIED FLEET</div>
               <div class="doc-row">
                 <span class="doc-label">Group Vehicle:</span>
-                <span class="doc-value"><strong>${group.year} ${group.brand} ${group.model}</strong></span>
+                <span class="doc-value"><strong>${group.year} ${this.escapeHtml(group.brand)} ${this.escapeHtml(group.model)}</strong></span>
               </div>
               <div class="doc-row">
                 <span class="doc-label">Territory & Radius:</span>
-                <span class="doc-value">${group.location} (within ${group.radiusMiles} miles)</span>
+                <span class="doc-value">${this.escapeHtml(group.location)} (within ${group.radiusMiles} miles)</span>
               </div>
               <div class="doc-row">
                 <span class="doc-label">Participating Volume:</span>
@@ -99,50 +99,50 @@ export class NegotiationEngine {
               </div>
               <div class="doc-row">
                 <span class="doc-label">Individual Target Discount:</span>
-                <span class="doc-value text-orange"><strong>$${activeTier.discount.toLocaleString()} Off MSRP</strong> (${activeTier.label})</span>
+                <span class="doc-value text-orange"><strong>$${activeTier.discount.toLocaleString()} Off MSRP</strong> (${this.escapeHtml(activeTier.label)})</span>
               </div>
               <div class="doc-row">
                 <span class="doc-label">Included Buyer Perks:</span>
-                <span class="doc-value">${activeTier.perks}</span>
+                <span class="doc-value">${this.escapeHtml(activeTier.perks)}</span>
               </div>
               <div class="doc-row">
-                <span class="doc-label">Buyer Verification Audit:</span>
-                <span class="doc-value text-success">✔ 100% Pre-Approved & Ready</span>
+                <span class="doc-label">Buyer Profile Data:</span>
+                <span class="doc-value">Sample data only; no verification performed</span>
               </div>
               <div class="doc-row">
                 <span class="doc-label">Targeted Dealerships:</span>
-                <span class="doc-value">${group.targetDealerships.join(" • ")}</span>
+                <span class="doc-value">${this.escapeHtml(group.targetDealerships.join(" • "))}</span>
               </div>
               <div class="doc-row">
                 <span class="doc-label">SLA Response Window:</span>
-                <span class="doc-value">48 Hours from transmission</span>
+                <span class="doc-value">48-hour local demo window</span>
               </div>
             </div>
 
             <div class="proposal-dispatch-action-box">
               ${!isDispatched ? `
                 <div class="dispatch-callout">
-                  <p><strong>Ready to Dispatch:</strong> When you trigger the proposal, all ${group.targetDealerships.length} dealership General Managers will receive instant notification to bid.</p>
+                  <p><strong>Run the demo:</strong> This local animation previews a proposal flow. No dealership is notified.</p>
                   <button type="button" id="btn-dispatch-proposal" class="btn btn-primary btn-3d w-100">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                    Dispatch Proposal to Dealership Sales Managers
+                    Run Proposal Dispatch Demo
                   </button>
                 </div>
               ` : `
                 <div class="dispatch-active-banner">
                   <div class="dispatch-clock">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    <span>Dealership Window Active • <strong>${group.expiresInHours}h Remaining</strong></span>
+                    <span>Demo Window Active • <strong>${group.expiresInHours}h Remaining</strong></span>
                   </div>
                   <button type="button" id="btn-re-dispatch" class="btn btn-secondary btn-sm btn-3d">
-                    Re-ping Dealerships (${group.targetDealerships.length})
+                    Replay Dispatch Demo
                   </button>
                 </div>
               `}
             </div>
           </div>
 
-          <!-- RIGHT: LIVE DEALERSHIP COUNTER-OFFERS -->
+          <!-- RIGHT: SAMPLE COUNTER-OFFERS -->
           <div class="counter-offers-panel card-3d">
             <div class="panel-header">
               <div class="header-icon-title">
@@ -170,8 +170,8 @@ export class NegotiationEngine {
       return `
         <div class="counter-empty-state">
           <div class="counter-empty-icon">🤝</div>
-          <h5>Awaiting Dealership Bids</h5>
-          <p class="text-muted">Dealership sales managers are currently reviewing the ${group.buyerCount}-buyer intent packet. Incoming counter-offers appear here in real time!</p>
+          <h5>No Sample Counter-Offers</h5>
+          <p class="text-muted">Sample counter-offers appear here for this local demo. No dealership is reviewing this group.</p>
           <div class="counter-hint-box">
             <span>Tip: Switch to <strong>Dealer Portal Mode</strong> above to test publishing a verified dealer counter-offer yourself!</span>
           </div>
@@ -190,10 +190,7 @@ export class NegotiationEngine {
             <div class="dealer-title-wrap">
               <div class="dealer-name-line">
                 <span class="dealer-name"><strong>${this.escapeHtml(counter.dealership)}</strong></span>
-                <span class="verified-dealer-badge">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="#059669"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                  Verified Dealership
-                </span>
+                  <span class="verified-dealer-badge">Sample dealer profile</span>
               </div>
               <div class="dealer-manager-name">${this.escapeHtml(counter.salesManager)}</div>
             </div>
@@ -228,17 +225,17 @@ export class NegotiationEngine {
 
             ${isAccepted ? `
               <div class="offer-finalized-badge">
-                🎉 DEAL SECURED! This counter-offer was officially accepted by the group majority.
+                🎉 Demo vote threshold reached.
               </div>
             ` : `
               <div class="counter-actions-row">
                 <button type="button" class="btn btn-success btn-sm btn-3d" data-action="accept-counter" data-counter-id="${counter.id}">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  Vote to Accept Offer
+                  Record Demo Acceptance
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm btn-3d" data-action="reject-counter" data-counter-id="${counter.id}">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                  Request Counter-Revision
+                  Record Demo Revision Request
                 </button>
               </div>
             `}
@@ -258,12 +255,12 @@ export class NegotiationEngine {
       });
     }
 
-    // Re-dispatch / Ping
+    // Replay the local dispatch demo.
     const redispatchBtn = document.getElementById("btn-re-dispatch");
     if (redispatchBtn) {
       redispatchBtn.addEventListener("click", () => {
         sound.playClick();
-        window.relateToast?.show("Re-pinged 3 dealership sales managers with active count!");
+        window.relateToast?.show("Dispatch demo replayed locally. No dealerships were contacted.");
       });
     }
 
@@ -291,9 +288,11 @@ export class NegotiationEngine {
       btn.addEventListener("click", () => {
         const counterId = btn.getAttribute("data-counter-id");
         sound.playJoinSuccess();
-        store.voteOnCounterOffer(groupId, counterId, "accept");
+        const recorded = store.voteOnCounterOffer(groupId, counterId, "accept");
         this.render();
-        window.relateToast?.show("Your vote to ACCEPT this counter-offer was logged!");
+        window.relateToast?.show(recorded
+          ? "Your demo vote was recorded in this browser."
+          : "Your vote could not be recorded.");
       });
     });
 
@@ -302,9 +301,11 @@ export class NegotiationEngine {
       btn.addEventListener("click", () => {
         const counterId = btn.getAttribute("data-counter-id");
         sound.playClick();
-        store.voteOnCounterOffer(groupId, counterId, "reject");
+        const recorded = store.voteOnCounterOffer(groupId, counterId, "reject");
         this.render();
-        window.relateToast?.show("Vote recorded. Requesting dealer revision.");
+        window.relateToast?.show(recorded
+          ? "Demo revision vote recorded in this browser."
+          : "Your vote could not be recorded.");
       });
     });
   }
@@ -320,32 +321,32 @@ export class NegotiationEngine {
             <div class="radar-ping-ring">
               <span class="ping-center">🤝</span>
             </div>
-            <h4>Dispatching Joint Intent Proposal</h4>
-            <p class="text-muted">Encrypting ${group.buyerCount} pre-approved commitments...</p>
+            <h4>Running Proposal Dispatch Demo</h4>
+            <p class="text-muted">Preparing a local preview with ${group.buyerCount} sample buyers...</p>
           </div>
 
           <div class="dispatch-steps-list">
             <div class="step-item active" id="dstep-1">
               <span class="step-icon">✔</span>
-              <span class="step-label">Aggregating $${(group.buyerCount * group.msrp).toLocaleString()} total fleet purchase value</span>
+              <span class="step-label">Calculating illustrative group value: $${(group.buyerCount * group.msrp).toLocaleString()}</span>
             </div>
             <div class="step-item" id="dstep-2">
               <span class="step-icon">○</span>
-              <span class="step-label">Encrypting verified financing badges and buyer zip codes</span>
+              <span class="step-label">Showing sample buyer profile indicators</span>
             </div>
             <div class="step-item" id="dstep-3">
               <span class="step-icon">○</span>
-              <span class="step-label">Transmitting formal tender to ${group.targetDealerships.length} dealership General Managers</span>
+              <span class="step-label">Simulating dispatch locally; no dealership is contacted</span>
             </div>
             <div class="step-item" id="dstep-4">
               <span class="step-icon">○</span>
-              <span class="step-label">Activating 48-hour competitive counter-bidding SLA</span>
+              <span class="step-label">Starting a local 48-hour demo window</span>
             </div>
           </div>
 
           <div class="dispatch-footer">
             <button type="button" class="btn btn-secondary btn-3d w-100" id="btn-cancel-dispatch" disabled>
-              Dispatching Securely...
+              Running Demo...
             </button>
           </div>
         </div>
@@ -376,7 +377,7 @@ export class NegotiationEngine {
       store.dispatchProposal(groupId);
       modalEl.remove();
       this.render();
-      window.relateToast?.show("🚀 Joint Intent Proposal Dispatched! Dealership response window active.");
+      window.relateToast?.show("Proposal demo completed locally. No dealerships were contacted.");
     }, 2800);
   }
 
@@ -394,16 +395,16 @@ export class NegotiationEngine {
               <svg width="32" height="32" viewBox="0 0 24 24" fill="#A25F2A"><path d="M12 2L1 21h22L12 2zm0 4.12l8.28 14.38H3.72L12 6.12zm-1 5.88v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
             </div>
             <div>
-              <h3>RELATE COLLECTIVE PURCHASE TENDER</h3>
-              <p class="text-muted">Document ID: REL-TDR-${group.id.toUpperCase()}-2026</p>
+              <h3>RELATE DEMO PROPOSAL PREVIEW</h3>
+              <p class="text-muted">Document ID: REL-DEMO-${this.escapeHtml(group.id.toUpperCase())}-${new Date().getFullYear()}</p>
             </div>
             <button type="button" class="modal-close-btn" id="close-doc-modal">&times;</button>
           </div>
 
           <div class="doc-formal-body">
             <div class="formal-section">
-              <h5>1. EXECUTIVE SUMMARY & FLEET INTENT</h5>
-              <p>This tender serves as formal notification that <strong>${group.buyerCount} pre-screened private buyers</strong> have combined intent to purchase the <strong>${group.year} ${group.brand} ${group.model}</strong> under fleet volume pricing terms.</p>
+              <h5>1. SAMPLE GROUP ESTIMATE</h5>
+              <p>This local demo estimates pricing for <strong>${group.buyerCount} sample buyers</strong> considering a <strong>${group.year} ${this.escapeHtml(group.brand)} ${this.escapeHtml(group.model)}</strong>. This is not a purchase commitment or a real offer.</p>
             </div>
 
             <div class="formal-table-wrap">
@@ -412,7 +413,7 @@ export class NegotiationEngine {
                   <tr>
                     <th>Item Description</th>
                     <th>Per Unit</th>
-                    <th>Group Aggregate (${group.buyerCount} Units)</th>
+                    <th>Illustrative Group Total (${group.buyerCount} Units)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -422,12 +423,12 @@ export class NegotiationEngine {
                     <td><strong>$${totalMsrp.toLocaleString()}</strong></td>
                   </tr>
                   <tr>
-                    <td>Tender Bulk Discount Request</td>
+                    <td>Sample Discount Target</td>
                     <td class="text-orange">-$${activeTier.discount.toLocaleString()}</td>
                     <td class="text-orange"><strong>-$${totalDiscount.toLocaleString()}</strong></td>
                   </tr>
                   <tr class="table-total-row">
-                    <td>Net Purchase Commitment</td>
+                    <td>Illustrative Net Price</td>
                     <td>$${(group.msrp - activeTier.discount).toLocaleString()}</td>
                     <td><strong>$${(totalMsrp - totalDiscount).toLocaleString()}</strong></td>
                   </tr>
@@ -436,24 +437,24 @@ export class NegotiationEngine {
             </div>
 
             <div class="formal-section mt-3">
-              <h5>2. VERIFIED BUYER REGISTRY AUDIT</h5>
+              <h5>2. SAMPLE BUYER PROFILES</h5>
               <div class="audit-chips-list">
                 ${group.members.map((m, idx) => `
                   <div class="audit-chip">
                     <span class="chip-num">#${idx + 1}</span>
                     <span class="chip-name">${this.escapeHtml(m.name)}</span>
-                    <span class="chip-zip">(${m.zip})</span>
-                    <span class="chip-verified">✔ ${m.status}</span>
+                    <span class="chip-zip">(${this.escapeHtml(m.zip)})</span>
+                    <span class="chip-verified">Sample: ${this.escapeHtml(m.status)}</span>
                   </div>
                 `).join("")}
               </div>
             </div>
 
             <div class="formal-section mt-3">
-              <h5>3. CONDITIONS & TARGET DEALERSHIPS</h5>
+              <h5>3. SAMPLE TERMS & DEALERSHIP TARGETS</h5>
               <p class="text-muted small">
-                Addressed to Sales General Managers of: <strong>${group.targetDealerships.join(", ")}</strong>.
-                Pricing must include all factory destination charges, waive documentation fees exceeding statutory minimums, and incorporate ${activeTier.perks}.
+                Example targets: <strong>${this.escapeHtml(group.targetDealerships.join(", "))}</strong>.
+                Sample pricing assumptions include ${this.escapeHtml(activeTier.perks)}.
               </p>
             </div>
           </div>
@@ -496,10 +497,10 @@ export class NegotiationEngine {
 
   getStatusLabel(status) {
     switch (status) {
-      case "accepted": return "Deal Accepted & Finalized";
-      case "counter_received": return "Dealership Counter Received";
-      case "dispatched": return "Proposal Dispatched (48h Window)";
-      default: return "Draft Proposal (Ready to Dispatch)";
+      case "accepted": return "Demo Vote Accepted";
+      case "counter_received": return "Sample Counter-Offer Added";
+      case "dispatched": return "Demo Dispatched (48h Window)";
+      default: return "Demo Draft (Ready to Preview)";
     }
   }
 

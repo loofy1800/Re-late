@@ -1,254 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Relate – Group Car‑Buying</title>
-  <style>
-    /* Coconut palette */
-    :root {
-      --coconut-white: #FDFBF8;
-      --coconut-cream: #FAF6F0;
-      --coconut-shell: #2B1810;
-      --coconut-caramel: #9E5827;
-      --coconut-gold: #FF6B00;
-    }
-    body {margin:0;font-family:Inter,system-ui,sans-serif;background:var(--coconut-white);color:#111;}
-    a {color:var(--coconut-gold);text-decoration:none;}
-    .header{display:flex;align-items:center;padding:0.5rem 1rem;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.1);} 
-    .logo{display:flex;align-items:center;cursor:pointer;}
-    .logo svg{width:32px;height:32px;}
-    .logo span{margin-left:0.5rem;font-weight:700;color:var(--coconut-shell);} 
-    .nav{margin-left:auto;display:flex;gap:0.5rem;}
-    .nav button{background:none;border:none;padding:0.5rem 1rem;cursor:pointer;transition:transform .25s cubic-bezier(.4,0,.2,1);}
-    .nav button.active{border-bottom:2px solid var(--coconut-gold);}
-    .nav button:hover{transform:translateY(-3px);box-shadow:0 4px 6px rgba(0,0,0,0.2);}
-    .main{padding:1rem;}
-    .card{background:#fff;border:1px solid var(--coconut-shell);border-radius:12px;padding:1rem;margin:0.5rem 0;transition:transform .25s;cursor:pointer;}
-    .card:hover{transform:translateY(-3px);box-shadow:0 6px 12px rgba(0,0,0,.15);}
-    .badge{background:var(--coconut-caramel);color:#fff;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.8rem;}
-    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:opacity .2s;}
-    .modal.active{visibility:visible;opacity:1;}
-    .modal .box{background:#fff;padding:1.5rem;border-radius:12px;min-width:300px;max-width:90%;}
-    .btn{background:var(--coconut-gold);color:#fff;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer;transition:transform .25s;}
-    .btn:hover{transform:translateY(-3px);}
-    .input{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:4px;}
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2B1810">
+  <meta name="description" content="Explore a local demo of group car-buying coordination with Relate.">
+  <title>Relate — Group Car Buying</title>
+  <link rel="icon" href="assets/relate-icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <header class="header">
-    <div class="logo" id="logo">
-      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="48" height="48" rx="12" fill="var(--coconut-shell)"/>
-        <path d="M7 30C8.5 24 13.5 20.5 19.5 19.5L28.5 19.5C34.5 20.5 39.5 24 41 30L42 33H6L7 30Z" fill="#3D2418"/>
-        <circle cx="14" cy="33" r="3.5" fill="var(--coconut-caramel)"/>
-        <circle cx="34" cy="33" r="3.5" fill="var(--coconut-caramel)"/>
-        <circle cx="19" cy="13" r="3.2" fill="#FAF7F2"/>
-        <circle cx="29" cy="13" r="3.2" fill="#FAF7F2"/>
-        <rect x="21" y="21" width="6.5" height="5.2" rx="2.6" fill="var(--coconut-gold)" stroke="#FAF7F2" stroke-width="1.5"/>
-        <path d="M19 22L24.2 24.2L29 22" stroke="#FAF7F2" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <span>RELATE</span>
+  <header class="relate-header">
+    <div class="header-inner">
+      <a class="logo-container" href="#" data-nav-view="browse" aria-label="Relate home">
+        <span class="logo-symbol-wrap">
+          <img src="assets/logo.svg" alt="" width="34" height="34">
+        </span>
+        <span>
+          <span class="logo-brand-name">RELATE</span>
+          <span class="logo-tagline">Group car buying</span>
+        </span>
+      </a>
+
+      <label class="header-location-pill">
+        <span aria-hidden="true">📍</span>
+        <select id="header-location-select" aria-label="Filter by metro">
+          <option value="all">All metros</option>
+          <option value="Atlanta, GA">Atlanta, GA</option>
+          <option value="Dallas-Fort Worth, TX">Dallas-Fort Worth, TX</option>
+          <option value="Austin, TX">Austin, TX</option>
+          <option value="Los Angeles, CA">Los Angeles, CA</option>
+          <option value="Chicago, IL">Chicago, IL</option>
+          <option value="Charlotte, NC">Charlotte, NC</option>
+          <option value="Miami, FL">Miami, FL</option>
+          <option value="San Francisco, CA">San Francisco, CA</option>
+        </select>
+      </label>
+
+      <label class="header-search-wrap">
+        <span class="header-search-icon" aria-hidden="true">⌕</span>
+        <input id="header-search-input" class="header-search-input" type="search" placeholder="Search vehicles, groups, dealers..." aria-label="Search groups">
+      </label>
+
+      <nav class="header-nav-links" aria-label="Main navigation">
+        <a class="nav-link-btn active" href="#" data-nav-view="browse">Browse Deals</a>
+        <a class="nav-link-btn" href="#" data-nav-view="my-groups">My Groups</a>
+        <a class="nav-link-btn" href="#" data-nav-view="how-it-works">How It Works</a>
+        <a class="nav-link-btn dealer-portal-link" href="#" data-nav-view="dealer-portal">Dealer Portal</a>
+      </nav>
+
+      <div class="header-actions-cluster">
+        <button type="button" class="icon-btn-3d" id="btn-toggle-sound" aria-label="Toggle tactile audio"></button>
+        <button type="button" class="user-profile-badge-btn" data-trigger-auth="profile" aria-label="Edit buyer profile">
+          <img id="header-user-avatar" class="user-nav-avatar" src="assets/relate-icon.svg" alt="">
+          <span class="user-nav-info">
+            <span class="user-nav-name" id="header-user-name"></span>
+            <span class="user-nav-badge" id="header-user-badge"></span>
+          </span>
+        </button>
+      </div>
     </div>
-    <nav class="nav">
-      <button class="nav-btn active" data-view="browse">Browse</button>
-      <button class="nav-btn" data-view="my">My Groups</button>
-      <button class="nav-btn" data-view="how">How It Works</button>
-      <button class="nav-btn" id="auth-btn">Login</button>
-    </nav>
   </header>
 
-  <main class="main" id="app-root"></main>
+  <main id="main-content-area" class="app-main-layout" tabindex="-1"></main>
 
-  <!-- Auth modal -->
-  <div class="modal" id="auth-modal">
-    <div class="box">
-      <h2>Login to Relate</h2>
-      <select id="auth-method" class="input"><option value="phone">Phone OTP</option><option value="google">Google (simulated)</option><option value="email">Email &amp; Password</option></select>
-      <div id="auth-content" style="margin-top:1rem;"></div>
-      <button class="btn" id="auth-close" style="margin-top:1rem;">Close</button>
+  <footer class="relate-footer">
+    <div class="footer-inner">
+      <div class="footer-bottom-bar">
+        <span>Relate is a local demo. Offers, verification, authentication and dealership communications are simulated.</span>
+        <span>© Relate Group Car Buying</span>
+      </div>
     </div>
-  </div>
+  </footer>
 
-  <script type="module">
-    // Minimal global state (pony‑tail style)
-    const state = {
-      user: null,
-      groups: [], // will be filled with demo data
-      filters: {brand:'all',body:'all',radius:50,maxPrice:90000,search:''},
-      view:'browse',
-    };
-
-    // Demo data
-    function seed() {
-      const demoGroups = [];
-      const brands = ['Toyota','Tesla','BMW','Ford','Hyundai'];
-      for(let i=0;i<8;i++){
-        const brand = brands[i%brands.length];
-        const tier = [{tier:1,min:3,discount:2000,label:'$2k off'},{tier:2,min:6,discount:4000,label:'$4k off'},{tier:3,min:10,discount:6000,label:'$6k off'}];
-        demoGroups.push({
-          id:'g'+i,
-          brand,
-          model:brand+' Model '+(i+1),
-          year:2024+i%3,
-          msrp:45000+ i*5000,
-          bodyType:'SUV',
-          location:'Atlanta, GA',
-          radiusMiles:30,
-          buyerCount:Math.floor(Math.random()*5),
-          maxCapacity:15,
-          currentTierIndex:0,
-          tiers:tier,
-          image:'https://picsum.photos/seed/'+i+'/400/200',
-          description:'Group buying for '+brand+' '+(i+1),
-          members:[],
-          messages:[],
-          polls:[],
-          proposal:{status:'draft'}
-        });
-      }
-      state.groups = demoGroups;
-    }
-    seed();
-
-    // Simple render router
-    const appRoot=document.getElementById('app-root');
-    function render(){
-      switch(state.view){
-        case 'browse': renderBrowse(); break;
-        case 'my': renderMy(); break;
-        case 'how': renderHow(); break;
-        case 'group': renderGroup(state.selectedGroup); break;
-        default: renderBrowse();
-      }
-    }
-
-    // ---------- Views ----------
-    function renderBrowse(){
-      const filtered = state.groups.filter(g=>{
-        const f=state.filters;
-        if(f.brand!=='all' && g.brand!==f.brand) return false;
-        if(g.msrp>f.maxPrice) return false;
-        if(f.search && !(g.brand+g.model).toLowerCase().includes(f.search)) return false;
-        return true;
-      });
-      appRoot.innerHTML=`<h2>Active Buying Groups (${filtered.length})</h2>
-        <div>
-          <select id="filter-brand" class="input"><option value="all">All Brands</option>${['Toyota','Tesla','BMW','Ford','Hyundai'].map(b=>`<option value="${b}">${b}</option>`).join('')}</select>
-          <input type="range" id="price-range" min="20000" max="100000" step="5000" value="${state.filters.maxPrice}" class="input" style="width:200px;"/>
-          <span id="price-val">$${state.filters.maxPrice}</span>
-        </div>
-        <div id="cards">${filtered.map(renderCard).join('')}</div>`;
-      document.getElementById('filter-brand').value=state.filters.brand;
-      document.getElementById('filter-brand').onchange=e=>{state.filters.brand=e.target.value;render();};
-      const pr=document.getElementById('price-range');
-      pr.oninput=e=>{state.filters.maxPrice=+e.target.value;document.getElementById('price-val').textContent=`$${e.target.value}`;render();};
-    }
-    function renderCard(g){
-      return `<div class="card" data-id="${g.id}">
-        <h3>${g.brand} ${g.model}</h3>
-        <p>MSRP $${g.msrp} – Tier ${g.currentTierIndex+1} ${g.tiers[g.currentTierIndex].label}</p>
-        <span class="badge">${g.buyerCount}/${g.maxCapacity} buyers</span>
-      </div>`;
-    }
-    function renderMy(){
-      const myIds = state.user?.joinedGroupIds||[];
-      const myGroups = state.groups.filter(g=>myIds.includes(g.id));
-      appRoot.innerHTML=`<h2>My Groups (${myGroups.length})</h2>
-        <div id="cards">${myGroups.map(renderCard).join('')}</div>`;
-    }
-    function renderHow(){
-      appRoot.innerHTML=`<h2>How Relate Works</h2><p>Combine buying power, unlock bulk discounts, negotiate with dealers.</p>`;
-    }
-    function renderGroup(g){
-      const isMember = state.user?.joinedGroupIds?.includes(g.id);
-      appRoot.innerHTML=`<button id="back" class="btn" style="margin-bottom:1rem;">← Back</button>
-        <h2>${g.brand} ${g.model}</h2>
-        <p>Price: $${g.msrp - g.tiers[g.currentTierIndex].discount} (Tier ${g.currentTierIndex+1})</p>
-        <button id="join" class="btn">${isMember?'Leave':'Join'} Group</button>
-        <h3>Chat</h3>
-        <div id="chat" style="border:1px solid #ccc;padding:0.5rem;height:150px;overflow:auto;background:#fff;">
-          ${g.messages.map(m=>`<div><strong>${m.senderName}:</strong> ${m.text}</div>`).join('')}
-        </div>
-        <input id="msg" class="input" placeholder="Type a message"/>
-        <button id="send" class="btn">Send</button>`;
-      document.getElementById('back').onclick=()=>{state.view='browse';render();};
-      document.getElementById('join').onclick=()=>{toggleJoin(g.id);};
-      document.getElementById('send').onclick=()=>{sendMessage(g.id);};
-    }
-
-    // ---------- Actions ----------
-    function toggleJoin(gid){
-      if(!state.user) return alert('Login first');
-      const g=state.groups.find(x=>x.id===gid);
-      const idx=state.user.joinedGroupIds.indexOf(gid);
-      if(idx===-1){
-        state.user.joinedGroupIds.push(gid);
-        g.buyerCount++;
-        g.messages.push({senderName:'System',text:`${state.user.name} joined.`});
-      }else{
-        state.user.joinedGroupIds.splice(idx,1);
-        g.buyerCount=Math.max(0,g.buyerCount-1);
-        g.messages.push({senderName:'System',text:`${state.user.name} left.`});
-      }
-      render();
-    }
-    function sendMessage(gid){
-      const txt=document.getElementById('msg').value.trim();
-      if(!txt) return;
-      const g=state.groups.find(x=>x.id===gid);
-      g.messages.push({senderName:state.user.name,text:txt});
-      document.getElementById('msg').value='';
-      renderGroup(g);
-    }
-
-    // ---------- Auth ----------
-    const authBtn=document.getElementById('auth-btn');
-    const authModal=document.getElementById('auth-modal');
-    const authContent=document.getElementById('auth-content');
-    const authMethod=document.getElementById('auth-method');
-    const authClose=document.getElementById('auth-close');
-    authBtn.onclick=()=>{authModal.classList.add('active'); renderAuth();};
-    authClose.onclick=()=>authModal.classList.remove('active');
-    authMethod.onchange=renderAuth;
-    function renderAuth(){
-      const method=authMethod.value;
-      if(method==='phone'){
-        authContent.innerHTML=`<input id="phone" class="input" placeholder="(404) 555‑0192"/><button class="btn" id="send-otp">Send OTP</button>`;
-        document.getElementById('send-otp').onclick=()=>{completeLogin({name:'Demo User',joinedGroupIds:[]});};
-      }else if(method==='google'){
-        authContent.innerHTML=`<button class="btn" id="google-login">Google Sign‑In (sim)</button>`;
-        document.getElementById('google-login').onclick=()=>{completeLogin({name:'Google User',joinedGroupIds:[]});};
-      }else{
-        authContent.innerHTML=`<input id="email" class="input" placeholder="email@example.com"/><input id="pwd" type="password" class="input" placeholder="Password" style="margin-top:.5rem;"/><button class="btn" id="email-login" style="margin-top:.5rem;">Login</button>`;
-        document.getElementById('email-login').onclick=()=>{completeLogin({name:'Email User',joinedGroupIds:[]});};
-      }
-    }
-    function completeLogin(user){
-      state.user=user;
-      authModal.classList.remove('active');
-      document.getElementById('auth-btn').textContent='Logout';
-      document.getElementById('auth-btn').onclick=()=>{state.user=null;document.getElementById('auth-btn').textContent='Login';document.getElementById('auth-btn').onclick=()=>{authModal.classList.add('active');renderAuth();};};
-      render();
-    }
-
-    // Nav
-    document.querySelectorAll('.nav-btn').forEach(btn=>{
-      btn.onclick=()=>{state.view=btn.dataset.view;document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b===btn));render();};
-    });
-
-    // Card click
-    appRoot.addEventListener('click',e=>{
-      const card=e.target.closest('.card');
-      if(card){
-        const gid=card.dataset.id;
-        const g=state.groups.find(x=>x.id===gid);
-        state.selectedGroup=g;state.view='group';render();
-      }
-    });
-
-    // Initial render
-    render();
-  </script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>

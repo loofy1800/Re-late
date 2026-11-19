@@ -1,7 +1,5 @@
 /**
- * RELATE - Dealership Sales Manager Portal
- * Allows dealership general sales managers to review active group purchasing demand
- * in their territory and publish formal real-time counter-offers back to groups.
+ * RELATE - Simulated Dealership Portal
  */
 
 import { store } from './store.js';
@@ -37,8 +35,8 @@ export class DealerPortal {
             </div>
             <div>
               <div class="dealer-badge-row">
-                <span class="badge badge-dark">Certified Fleet Desk</span>
-                <span class="badge badge-success">Verified Partner</span>
+                <span class="badge badge-dark">Demo Fleet Desk</span>
+                <span class="badge badge-success">Sample Profile</span>
               </div>
               <h2>${this.escapeHtml(currentDealer.name)}</h2>
               <p class="text-muted">
@@ -54,6 +52,8 @@ export class DealerPortal {
           </div>
         </div>
 
+        <p class="text-muted small">Demo only. These sample groups and counter-offers are stored in this browser; nothing is sent to a dealership.</p>
+
         <!-- PORTAL GRID: ACTIVE GROUP PROPOSALS IN TERRITORY -->
         <div class="dealer-dashboard-grid">
           <!-- LEFT: ACTIVE INCOMING GROUP REQUESTS -->
@@ -63,7 +63,7 @@ export class DealerPortal {
                 <span class="live-pulse-dot"></span>
                 Active Group Purchase Proposals (${groups.length})
               </h3>
-              <span class="text-muted small">Real-time aggregated demand in your region</span>
+              <span class="text-muted small">Sample group demand in this demo</span>
             </div>
 
             <div class="dealer-group-cards-list">
@@ -76,13 +76,13 @@ export class DealerPortal {
                   <div class="dealer-request-card card-3d ${hasCounter ? 'has-active-counter' : ''}">
                     <div class="d-card-header">
                       <div>
-                        <span class="badge badge-orange-sm">${group.brand} Fleet Demand</span>
+                        <span class="badge badge-orange-sm">${this.escapeHtml(group.brand)} Fleet Demand</span>
                         <h4>${this.escapeHtml(group.title)}</h4>
-                        <div class="text-muted small">📍 ${group.location} • Target: ${group.model}</div>
+                        <div class="text-muted small">📍 ${this.escapeHtml(group.location)} • Target: ${this.escapeHtml(group.model)}</div>
                       </div>
                       <div class="d-card-badge-count">
                         <span class="count-num">${group.buyerCount}</span>
-                        <span class="count-lbl">Committed Buyers</span>
+                        <span class="count-lbl">Sample Buyers</span>
                       </div>
                     </div>
 
@@ -104,16 +104,16 @@ export class DealerPortal {
                     <div class="d-card-footer">
                       <div class="d-footer-status">
                         ${hasCounter ? `
-                          <span class="text-success">✔ Counter-Offer Published to Group</span>
+                          <span class="text-success">✔ Sample Counter-Offer Added</span>
                         ` : `
                           <span class="text-muted">Awaiting your dealership proposal</span>
                         `}
                       </div>
                       <div class="d-card-btns">
-                        <button type="button" class="btn btn-secondary btn-sm btn-3d" data-dealer-inspect="${group.id}">
+                        <button type="button" class="btn btn-secondary btn-sm btn-3d" data-dealer-inspect="${this.escapeHtml(group.id)}">
                           View Group Chat & Roster
                         </button>
-                        <button type="button" class="btn btn-primary btn-sm btn-3d" data-dealer-counter="${group.id}">
+                        <button type="button" class="btn btn-primary btn-sm btn-3d" data-dealer-counter="${this.escapeHtml(group.id)}">
                           ${hasCounter ? 'Submit Revised Counter' : 'Publish Counter-Offer'}
                         </button>
                       </div>
@@ -130,7 +130,7 @@ export class DealerPortal {
               <div class="panel-header">
                 <h4>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                  Draft Verified Counter-Offer
+                  Draft Sample Counter-Offer
                 </h4>
               </div>
 
@@ -138,21 +138,24 @@ export class DealerPortal {
                 <div class="form-group">
                   <label class="form-label" for="counter-target-group">Target Buying Group</label>
                   <select id="counter-target-group" class="form-select" required>
-                    ${groups.map(g => `
-                      <option value="${g.id}">
-                        ${g.title} (${g.buyerCount} Buyers • Target: -$${g.tiers[g.currentTierIndex].discount})
-                      </option>
-                    `).join("")}
+                    ${groups.map(g => {
+                      const tier = g.tiers[g.currentTierIndex] || g.tiers[0];
+                      return `
+                        <option value="${this.escapeHtml(g.id)}">
+                          ${this.escapeHtml(g.title)} (${g.buyerCount} Buyers • Target: -$${tier.discount})
+                        </option>
+                      `;
+                    }).join("")}
                   </select>
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label" for="counter-discount-input">Official Counter Discount ($ off MSRP per car)</label>
+                  <label class="form-label" for="counter-discount-input">Sample Counter Discount ($ off MSRP per car)</label>
                   <div class="input-with-addon">
                     <span class="input-prefix">$</span>
                     <input type="number" id="counter-discount-input" class="form-input" placeholder="3950" value="3950" min="500" max="15000" step="50" required>
                   </div>
-                  <span class="form-hint">Competitive bulk discounts maximize conversion of the full buyer group.</span>
+                  <span class="form-hint">This local sample will appear in the selected group's demo workbench.</span>
                 </div>
 
                 <div class="form-group">
@@ -171,13 +174,13 @@ export class DealerPortal {
                   </div>
                   <div class="sign-details">
                     <span class="sign-name"><strong>${this.escapeHtml(currentDealer.manager)}</strong></span>
-                    <span class="sign-status text-muted small">Authorized Signing Officer • ${this.escapeHtml(currentDealer.name)}</span>
+                    <span class="sign-status text-muted small">Sample manager profile • ${this.escapeHtml(currentDealer.name)}</span>
                   </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-3d w-100 mt-3">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  Publish Counter-Offer Directly to Buying Group
+                  Add Sample Counter-Offer to Group
                 </button>
               </form>
             </div>
@@ -236,7 +239,7 @@ export class DealerPortal {
         const terms = document.getElementById("counter-terms-input").value;
         const currentDealer = store.getState().currentDealer || store.getState().dealershipsList[0];
 
-        store.submitDealerCounterOffer(
+        const counter = store.submitDealerCounterOffer(
           groupId,
           currentDealer.name,
           currentDealer.manager,
@@ -244,9 +247,13 @@ export class DealerPortal {
           perks,
           terms
         );
+        if (!counter) {
+          window.relateToast?.show("Enter a counter discount between $500 and $15,000.");
+          return;
+        }
 
         this.render();
-        window.relateToast?.show(`🎉 Official Counter-Offer published to group! Buyers can now vote to accept.`);
+        window.relateToast?.show("Sample counter-offer added to this browser.");
       });
     }
   }
