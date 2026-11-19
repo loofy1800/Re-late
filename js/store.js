@@ -3,7 +3,7 @@
  * Manages state persistence, subscriptions, and actions for groups, chat, proposals, and user profile.
  */
 
-import { INITIAL_DATA } from './data.js';
+import { INITIAL_DATA, VEHICLE_IMAGE_FALLBACKS } from './data.js';
 
 class Store {
   constructor() {
@@ -449,7 +449,7 @@ class Store {
       location,
       radiusMiles: Number(groupPayload.radiusMiles) || 30,
       targetDealerships: groupPayload.targetDealerships || ["Certified Regional Volume Dealers"],
-      image: groupPayload.image || "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=900&q=80",
+      image: groupPayload.image || VEHICLE_IMAGE_FALLBACKS[groupPayload.bodyType] || VEHICLE_IMAGE_FALLBACKS.SUV,
       expiresInHours: 72,
       expirationDate: new Date(Date.now() + 72 * 3600 * 1000).toISOString(),
       description: groupPayload.description || `Group buyers combining orders for ${groupPayload.brand} ${groupPayload.model} with volume discounts.`,

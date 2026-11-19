@@ -12,6 +12,7 @@ import { ChatEngine } from './chat.js';
 import { NegotiationEngine } from './negotiation.js';
 import { DealerPortal } from './dealer-portal.js';
 import { SavingsCalculator } from './calculator.js';
+import { VEHICLE_IMAGE_FALLBACKS } from './data.js';
 
 class RelateApp {
   constructor() {
@@ -229,6 +230,7 @@ class RelateApp {
   renderBrowseView(container) {
     const state = store.getState();
     const groups = this.filterGroups(state.groups, state.filters);
+    const availableBrands = ['all', ...new Set(state.groups.map(group => group.brand).sort((a, b) => a.localeCompare(b)))];
 
     container.innerHTML = `
       <!-- HERO SECTION -->
@@ -298,9 +300,9 @@ class RelateApp {
         <div class="filters-bar card-3d">
           <div class="filter-pills-row">
             <span class="filter-label">Make / Brand:</span>
-            ${['all', 'Toyota', 'Tesla', 'BMW', 'Ford', 'Hyundai', 'Honda'].map(brand => `
-              <button type="button" class="filter-pill btn-3d ${state.filters.brand === brand ? 'active' : ''}" data-filter-brand="${brand}">
-                ${brand === 'all' ? 'All Brands' : brand}
+            ${availableBrands.map(brand => `
+              <button type="button" class="filter-pill btn-3d ${state.filters.brand === brand ? 'active' : ''}" data-filter-brand="${this.escapeHtml(brand)}">
+                ${brand === 'all' ? 'All Brands' : this.escapeHtml(brand)}
               </button>
             `).join("")}
           </div>
@@ -960,32 +962,26 @@ class RelateApp {
             <div class="grid-2-col">
               <div class="form-group">
                 <label class="form-label" for="cg-brand">Vehicle Make / Brand</label>
-                <select id="cg-brand" class="form-select" required>
-                  <option value="Toyota">Toyota</option>
-                  <option value="Tesla">Tesla</option>
-                  <option value="BMW">BMW</option>
-                  <option value="Ford">Ford</option>
-                  <option value="Hyundai">Hyundai</option>
-                  <option value="Honda">Honda</option>
-                  <option value="Porsche">Porsche</option>
-                  <option value="Lexus">Lexus</option>
-                  <option value="Audi">Audi</option>
+                <select id="cg-brand" class="form-select" required disabled>
+                  <option value="">Loading vehicle makes...</option>
                 </select>
               </div>
 
               <div class="form-group">
-                <label class="form-label" for="cg-model">Model & Target Trim</label>
-                <input type="text" id="cg-model" class="form-input" placeholder="e.g. Grand Highlander Hybrid" required>
+                <label class="form-label" for="cg-model">Vehicle Model</label>
+                <select id="cg-model" class="form-select" required disabled>
+                  <option value="">Select a make first</option>
+                </select>
               </div>
             </div>
+
+            <p id="cg-catalog-status" class="text-muted" role="status" aria-live="polite">Loading the vehicle catalog from API Ninjas...</p>
 
             <div class="grid-2-col">
               <div class="form-group">
                 <label class="form-label" for="cg-year">Model Year</label>
-                <select id="cg-year" class="form-select">
-                  <option value="2025" selected>2025</option>
-                  <option value="2026">2026</option>
-                  <option value="2024">2024</option>
+                <select id="cg-year" class="form-select" required disabled>
+                  <option value="">Select a model first</option>
                 </select>
               </div>
 
@@ -1017,7 +1013,7 @@ class RelateApp {
               <textarea id="cg-desc" class="form-input" rows="2" placeholder="e.g. Aggregating 8+ buyers to demand invoice pricing with waived dealer doc fees." required>Aggregating local buyers to demand fleet invoice pricing with zero markups and complimentary tint package.</textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-3d w-100">
+            <button type="submit" class="btn btn-primary btn-3d w-100" disabled>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               Create Buying Group as Captain
             </button>
@@ -1035,27 +1031,117 @@ class RelateApp {
       if (e.target === modalEl) cleanup();
     });
 
-    document.getElementById("create-group-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      sound.playProposalFanfare();
+    const form = document.getElementById("create-group-form");
+    const brandSelect = document.getElementById("cg-brand");
+    const modelSelect = document.getElementById("cg-model");
+    const yearSelect = document.getElementById("cg-year");
+    const catalogStatus = document.getElementById("cg-catalog-status");
+    const submitButton = form.querySelector("button[type='submit']");
+    const modelsByName = new Map();
+    let modelRequestId = 0;
 
-      const payload = {
-        brand: document.getElementById("cg-brand").value,
-        model: document.getElementById("cg-model").value,
-        year: document.getElementById("cg-year").value,
-        bodyType: document.getElementById("cg-body").value,
-        msrp: document.getElementById("cg-msrp").value,
-        location: document.getElementById("cg-location").value,
-        description: document.getElementById("cg-desc").value
-      };
+    const fetchVehicleData = async (url) => {
+      const response = await fetch(url);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || `Vehicle API request failed (${response.status}).`);
+      return data;
+    };
 
-      const newGroup = store.createNewBuyingGroup(payload);
-      if (!newGroup) {
-        window.relateToast?.show("Please enter a valid vehicle, model, location, and MSRP.");
+    const loadModels = async () => {
+      const requestId = ++modelRequestId;
+      const make = brandSelect.value;
+      modelSelect.disabled = true;
+      yearSelect.disabled = true;
+      submitButton.disabled = true;
+      modelSelect.replaceChildren(new Option("Loading models...", ""));
+      yearSelect.replaceChildren(new Option("Select a model first", ""));
+      modelsByName.clear();
+      if (!make) {
+        modelSelect.replaceChildren(new Option("Select a make first", ""));
+        catalogStatus.textContent = "Select a make to browse its models.";
         return;
       }
-      cleanup();
-      window.relateToast?.show(`🎉 Group "${newGroup.title}" created! You are the Group Captain.`);
+      try {
+        const models = await fetchVehicleData(`/api/vehicles/models?${new URLSearchParams({ make })}`);
+        if (requestId !== modelRequestId) return;
+        modelSelect.replaceChildren(new Option(models.length ? "Select a model..." : "No models available", ""));
+        models.forEach(model => {
+          modelsByName.set(model.name, model);
+          modelSelect.add(new Option(`${model.name} (${model.year_begin}–${model.year_end || "current"})`, model.name));
+        });
+        modelSelect.disabled = models.length === 0;
+        catalogStatus.textContent = models.length ? "Choose a model to see available production years." : "No models were returned for this make.";
+      } catch (error) {
+        if (requestId !== modelRequestId) return;
+        modelSelect.replaceChildren(new Option("Could not load models", ""));
+        catalogStatus.textContent = `Could not load models: ${error.message}`;
+      }
+    };
+
+    brandSelect.addEventListener("change", loadModels);
+    modelSelect.addEventListener("change", () => {
+      const model = modelsByName.get(modelSelect.value);
+      yearSelect.replaceChildren(new Option(model ? "Select a year..." : "Select a model first", ""));
+      yearSelect.disabled = !model;
+      if (!model) return;
+
+      const currentYear = new Date().getFullYear();
+      const firstYear = Number(model.year_begin) || currentYear;
+      const lastYear = Math.max(firstYear, Math.min(Number(model.year_end) || currentYear, currentYear));
+      for (let year = lastYear; year >= firstYear; year -= 1) {
+        yearSelect.add(new Option(String(year), String(year)));
+      }
+      yearSelect.value = String(lastYear);
+      submitButton.disabled = false;
+      catalogStatus.textContent = "Vehicle image will be loaded when you create the group.";
+    });
+
+    fetchVehicleData("/api/vehicles/makes").then(makes => {
+      brandSelect.replaceChildren(new Option("Select a make...", ""));
+      makes.forEach(make => brandSelect.add(new Option(make.name, make.name)));
+      brandSelect.disabled = false;
+      catalogStatus.textContent = makes.length
+        ? `Loaded ${makes.length} vehicle makes. Select a make to browse its models.`
+        : "The vehicle catalog returned no makes.";
+    }).catch(error => {
+      brandSelect.replaceChildren(new Option("Vehicle catalog unavailable", ""));
+      catalogStatus.textContent = `Could not load vehicle makes: ${error.message}. Configure API_NINJAS_KEY and restart the server.`;
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      submitButton.disabled = true;
+      try {
+        const brand = brandSelect.value;
+        const model = modelSelect.value;
+        const year = yearSelect.value;
+        const photo = await fetchVehicleData(`/api/vehicles/image?${new URLSearchParams({ make: brand, model, year })}`);
+        const bodyType = document.getElementById("cg-body").value;
+        const payload = {
+          brand,
+          model,
+          year,
+          bodyType,
+          image: photo.image_url || VEHICLE_IMAGE_FALLBACKS[bodyType] || VEHICLE_IMAGE_FALLBACKS.SUV,
+          msrp: document.getElementById("cg-msrp").value,
+          location: document.getElementById("cg-location").value,
+          description: document.getElementById("cg-desc").value
+        };
+
+        const newGroup = store.createNewBuyingGroup(payload);
+        if (!newGroup) {
+          window.relateToast?.show("Please enter a valid vehicle, model, location, and MSRP.");
+          return;
+        }
+        sound.playProposalFanfare();
+        cleanup();
+        window.relateToast?.show(`🎉 Group "${newGroup.title}" created! You are the Group Captain.`);
+      } catch (error) {
+        catalogStatus.textContent = `Could not load the vehicle image: ${error.message}`;
+        window.relateToast?.show(`Could not create group: ${error.message}`);
+      } finally {
+        submitButton.disabled = false;
+      }
     });
   }
 

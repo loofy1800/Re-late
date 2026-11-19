@@ -1,8 +1,8 @@
 # Relate — Group Car-Buying & Negotiation Platform 🚗🤝
 
-**Relate** is a browser-only prototype for exploring group car-buying flows. Its offers, verification, authentication, chat, and dealership interactions are simulated; it does not contact dealerships or process purchases.
+**Relate** is a local prototype for exploring group car-buying flows. Its offers, verification, authentication, chat, and dealership interactions are simulated; it does not contact dealerships or process purchases. The local Python server proxies vehicle catalog and image lookups to API Ninjas.
 
-> **Demo only:** State is stored in this browser's local storage. Invite links work only in a browser that already has the group saved. There is no backend, real account security, or cross-device real-time service. Do not enter real passwords or sensitive financial information.
+> **Demo only:** State is stored in this browser's local storage. Invite links work only in a browser that already has the group saved. There is no account security or cross-device real-time service. Do not enter real passwords or sensitive financial information.
 
 ---
 
@@ -32,6 +32,7 @@
 
 ### 2. Sample Dealership Offers Feed
 - **Filterable Deal Catalog:** Filter by Brand, maximum group radius (25, 50, 100, 500 miles), metro, Body Type (SUV, Sedan, Electric, Truck), and Maximum MSRP.
+- **Vehicle Catalog & Images:** Load all API Ninjas makes and each make's models when creating a group; model/year images are saved with the group, with body-type image fallbacks when the API has no photo.
 - **Tiered Bulk Offers:** Tier 1 (3–5 buyers), Tier 2 (6–9 buyers), and Tier 3 (10+ buyers) with progressive discounts ($2,200 to $6,000+ off MSRP) plus complimentary perks (tint, floor mats, free maintenance).
 - **Live Expiration & Tier Progress Bars:** Active countdown ticking down in real time (hours, minutes, seconds) and visual capacity progress bars showing remaining spots to unlock higher discounts.
 
@@ -58,6 +59,7 @@
 c:\Re-late\
 ├── index.html               # Main application shell with semantic sections & modal containers
 ├── server.py                # Loopback-only development HTTP server with clean MIME headers
+├── test_server.py           # Vehicle catalog pagination and image validation tests
 ├── css\
 │   ├── style.css            # Consolidated layout, components, typography, and color tokens
 │   ├── components.css       # Additional component styles (not currently loaded by index.html)
@@ -82,12 +84,18 @@ c:\Re-late\
 
 ## 🛠️ How to Run Locally
 
-1. Start the server:
+1. Get an API Ninjas Cars API plan with access to `/v2/carmakes` and `/v2/carmodels` (Premium) and the `image_url` field (Business+). Create an API key and set it in the server's environment; do not put it in JavaScript or commit it.
+2. Start the server (PowerShell):
    ```bash
+   $env:API_NINJAS_KEY = "your-api-key"
    py server.py
    ```
-2. Open your browser and navigate to:
+3. Open your browser and navigate to:
    ```
    http://127.0.0.1:8080
    ```
    If port 8080 is occupied, the server uses port 8081.
+4. Run the server checks:
+   ```bash
+   py -m unittest test_server.py
+   ```

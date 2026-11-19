@@ -3,6 +3,13 @@
  * Comprehensive mock dataset of vehicles, buying groups, members, polls, and dealership counter-offers.
  */
 
+export const VEHICLE_IMAGE_FALLBACKS = {
+  SUV: "https://images.unsplash.com/photo-1581540222194-0def2dda95b8?auto=format&fit=crop&w=900&q=80",
+  Sedan: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=900&q=80",
+  Truck: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=900&q=80",
+  Electric: "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=900&q=80"
+};
+
 export const INITIAL_DATA = {
   currentUser: {
     id: "user_alex_01",
